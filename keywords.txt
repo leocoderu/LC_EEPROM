@@ -1,0 +1,41 @@
+#######################################
+# Syntax Coloring Map For LC_EEPROM
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+LC_EEPROM	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+begin		KEYWORD2
+readByte	KEYWORD2
+writeByte	KEYWORD2
+readInt		KEYWORD2
+writeInt	KEYWORD2
+readLong	KEYWORD2
+writeLong	KEYWORD2
+readStr		KEYWORD2
+writeStr	KEYWORD2
+fillBlock	KEYWORD2
+readBlock	KEYWORD2
+writeBlock	KEYWORD2
+iReadByte	KEYWORD2
+iWriteByte	KEYWORD2
+iReadInt	KEYWORD2
+iWriteInt	KEYWORD2
+iReadLong	KEYWORD2
+iWriteLong	KEYWORD2
+iReadStr	KEYWORD2
+iWriteStr	KEYWORD2
+iFillBlock	KEYWORD2
+iReadBlock	KEYWORD2
+iWriteBlock	KEYWORD2
+show		KEYWORD2
+iShow		KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
