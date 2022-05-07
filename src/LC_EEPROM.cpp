@@ -1,8 +1,10 @@
 #include "LC_EEPROM.h"
+
+using namespace LC_EEPROM;
 //#include <Wire.h>
 
 // Constructor of Class
-LC_EEPROM::LC_EEPROM(const eeprom_size_t& devCapacity, const uint8_t& qDevice, const uint16_t& pSize, const uint8_t& eeAddr = 0x50){
+LC_EEPROM(const eeprom_size_t& devCapacity, const uint8_t& qDevice, const uint16_t& pSize, const uint8_t& eeAddr = 0x50){
     _devCapacity = devCapacity;
     _eepromAddr = eeAddr;
     _qDevice = qDevice;
@@ -25,7 +27,7 @@ LC_EEPROM::LC_EEPROM(const eeprom_size_t& devCapacity, const uint8_t& qDevice, c
         }
 }
 
-uint8_t LC_EEPROM::begin(twiFreq_t twiFreq){
+uint8_t begin(twiFreq_t twiFreq){
     Wire.begin();
     Wire.setClock(twiFreq);
     Wire.beginTransmission(_eepromAddr);
@@ -34,14 +36,14 @@ uint8_t LC_EEPROM::begin(twiFreq_t twiFreq){
     return Wire.endTransmission();
 }
 
-uint8_t LC_EEPROM::readByte(const uint32_t& addr) {
+uint8_t readByte(const uint32_t& addr) {
     _writeAddr(addr);
     Wire.requestFrom((uint8_t)_eepromAddr, (uint8_t)0x01);
     return (Wire.available()) ? Wire.read() : 0;
 }
 
-void LC_EEPROM::writeByte(const uint32_t& addr, const uint8_t& wByte){
-    if (LC_EEPROM::readByte(addr) != wByte) {
+void writeByte(const uint32_t& addr, const uint8_t& wByte){
+    if (readByte(addr) != wByte) {
         Wire.beginTransmission(_eepromAddr);
         Wire.write((byte*)&addr, 2);
         Wire.write(wByte);
@@ -50,91 +52,91 @@ void LC_EEPROM::writeByte(const uint32_t& addr, const uint8_t& wByte){
     }
 }
 
-uint16_t LC_EEPROM::readInt(const uint32_t& addr) {
-    return LC_EEPROM::readByte(addr) << 8 | LC_EEPROM::readByte(addr + 1);
+uint16_t readInt(const uint32_t& addr) {
+    return readByte(addr) << 8 | readByte(addr + 1);
 }
 
-void LC_EEPROM::writeInt(const uint32_t& addr, const uint16_t& wInt) {
-    LC_EEPROM::writeByte(addr, wInt >> 8);
-    LC_EEPROM::writeByte(addr + 1, (uint8_t)wInt);
+void writeInt(const uint32_t& addr, const uint16_t& wInt) {
+    writeByte(addr, wInt >> 8);
+    writeByte(addr + 1, (uint8_t)wInt);
 }
 
-uint32_t LC_EEPROM::readLong(const uint32_t& addr) {
-    return ((uint32_t)LC_EEPROM::readByte(addr) << 24) | ((uint32_t)LC_EEPROM::readByte(addr + 1) << 16) | (LC_EEPROM::readByte(addr + 2) << 8) | LC_EEPROM::readByte(addr + 3);
+uint32_t readLong(const uint32_t& addr) {
+    return ((uint32_t)readByte(addr) << 24) | ((uint32_t)readByte(addr + 1) << 16) | (readByte(addr + 2) << 8) | readByte(addr + 3);
 }
 
-void LC_EEPROM::writeLong(const uint32_t& addr, const uint32_t& wDouble) {
+void writeLong(const uint32_t& addr, const uint32_t& wDouble) {
     uint32_t tByte = wDouble;
     for (int8_t i = sizeof(wDouble) - 1; i >= 0; i--) {
-        LC_EEPROM::writeByte(addr + i, (uint8_t)tByte);
+        writeByte(addr + i, (uint8_t)tByte);
         tByte = tByte >> 8;
     }
 }
 
-String LC_EEPROM::readStr(const uint32_t& addr, const uint16_t& quan) {
+String readStr(const uint32_t& addr, const uint16_t& quan) {
     String res = "";
     //if ((addr >= 0) && ((addr + quan) < EEPROM.length())) <- Указать максимальный размер внешней памяти, подсмотреть у JC
         for (uint16_t i = 0; i < quan; i++)
-            res += char(LC_EEPROM::readByte(addr + i));
+            res += char(readByte(addr + i));
     return res;
 }
 
-void LC_EEPROM::writeStr(const uint32_t& addr, const String& sendStr)
+void writeStr(const uint32_t& addr, const String& sendStr)
 {
     //if ((addr >= 0) && ((addr + sendStr.length()) < EEPROM.length())) <- Указать максимальный размер внешней памяти, подсмотреть у JC
         for (uint16_t i = 0; i < sendStr.length(); i++)
-            LC_EEPROM::writeByte(addr + i, sendStr[i]);
+            writeByte(addr + i, sendStr[i]);
 }
 
-void LC_EEPROM::fillBlock(const uint32_t& addr, const uint32_t& cnt, const uint8_t& bt) {
-    for (uint32_t i = 0; i < cnt; i++) LC_EEPROM::writeByte(addr + i, bt);    
+void fillBlock(const uint32_t& addr, const uint32_t& cnt, const uint8_t& bt) {
+    for (uint32_t i = 0; i < cnt; i++) writeByte(addr + i, bt);    
 }
 
-void LC_EEPROM::readBlock(const uint32_t& addr, const int8_t& defVal, int8_t* dst, const uint8_t& szDst) {
+void readBlock(const uint32_t& addr, const int8_t& defVal, int8_t* dst, const uint8_t& szDst) {
     memset(dst, defVal, szDst);                 // Заполнение массива INT8_MIN
     for (uint8_t i = 0; i < szDst; i++) {
-        uint8_t bt = LC_EEPROM::readByte(addr + i);
+        uint8_t bt = readByte(addr + i);
         if (bt != 0xFF) dst[i] = bt;  // Возможно вместо 0xFF стоит указать defVal, т.к. для char даьше 0 можно не читать
         else break;
     }
 }
 
-void LC_EEPROM::writeBlock(const uint32_t& addr, const uint8_t& defVal, const int8_t* src, const uint8_t& szSrc) {
-    LC_EEPROM::fillBlock(addr, szSrc, defVal);
+void writeBlock(const uint32_t& addr, const uint8_t& defVal, const int8_t* src, const uint8_t& szSrc) {
+    fillBlock(addr, szSrc, defVal);
     for (uint8_t i = 0; i < szSrc; i++)
         if (((defVal == 0xFF) && (src[i] == INT8_MIN)) || ((defVal == 0x00) && (src[i] == 0x00))) break;
-        else LC_EEPROM::writeByte(addr + i, src[i]);
+        else writeByte(addr + i, src[i]);
 }
 
 
 // ---------------------------------------------- Internal EEPROM -----------------------------------------------------
-uint8_t LC_EEPROM::iReadByte(const uint32_t& addr) {
+uint8_t iReadByte(const uint32_t& addr) {
     if ((addr >= 0) && (addr < EEPROM.length())) return EEPROM.read(addr);
     return 0xFF;
 }
 
-void LC_EEPROM::iWriteByte(const uint32_t& addr, const uint8_t& wByte) {
+void iWriteByte(const uint32_t& addr, const uint8_t& wByte) {
     if ((addr >= 0) && (addr < EEPROM.length())) EEPROM.update(addr, wByte);
 }
 
-uint16_t LC_EEPROM::iReadInt(const uint32_t& addr) {
+uint16_t iReadInt(const uint32_t& addr) {
     if ((addr >= 0) && ((addr + 1) < EEPROM.length())) return (EEPROM.read(addr) << 8) | EEPROM.read(addr + 1);
     return 0xFFFF;
 }
 
-void LC_EEPROM::iWriteInt(const uint32_t& addr, const uint16_t& wInt) {
+void iWriteInt(const uint32_t& addr, const uint16_t& wInt) {
     if ((addr >= 0) && ((addr + 1) < EEPROM.length())) {
         byte tByte = (wInt >> 8); EEPROM.update(addr, tByte);
         tByte = ((wInt << 8) >> 8); EEPROM.update(addr + 1, tByte);
     }
 }
 
-uint32_t LC_EEPROM::iReadLong(const uint32_t& addr) {
+uint32_t iReadLong(const uint32_t& addr) {
     if ((addr >= 0) && ((addr + 3) < EEPROM.length())) return ((uint32_t)EEPROM.read(addr) << 24) | ((uint32_t)EEPROM.read(addr + 1) << 16) | (EEPROM.read(addr + 2) << 8) | EEPROM.read(addr + 3);
     return 0xFFFFFFFF;
 }
 
-void LC_EEPROM::iWriteLong(const uint32_t& addr, const uint32_t& wDouble) {
+void iWriteLong(const uint32_t& addr, const uint32_t& wDouble) {
     if ((addr >= 0) && ((addr + 3) < EEPROM.length())) {
         byte tByte = (wDouble >> 24); EEPROM.update(addr, tByte);
         tByte = (byte)((wDouble << 8) >> 24); EEPROM.update(addr + 1, tByte);
@@ -143,7 +145,7 @@ void LC_EEPROM::iWriteLong(const uint32_t& addr, const uint32_t& wDouble) {
     }
 }
 
-String LC_EEPROM::iReadStr(const uint32_t& addr, const uint16_t& quan) {
+String iReadStr(const uint32_t& addr, const uint16_t& quan) {
     String res = "";
     if ((addr >= 0) && ((addr + quan) < EEPROM.length()))
         for (uint16_t i = 0; i < quan; i++)
@@ -151,50 +153,50 @@ String LC_EEPROM::iReadStr(const uint32_t& addr, const uint16_t& quan) {
     return res;
 }
 
-void LC_EEPROM::iWriteStr(const uint32_t& addr, const String& sendStr)
+void iWriteStr(const uint32_t& addr, const String& sendStr)
 {
     if ((addr >= 0) && ((addr + sendStr.length()) < EEPROM.length()))
         for (uint16_t i = 0; i < sendStr.length(); i++)
             EEPROM.update(addr + i, sendStr[i]);
 }
 
-void LC_EEPROM::iFillBlock(const uint32_t& addr, const uint32_t& cnt, const uint8_t& bt) {
-    for (uint32_t i = 0; i < cnt; i++) LC_EEPROM::iWriteByte(addr + i, bt);
+void iFillBlock(const uint32_t& addr, const uint32_t& cnt, const uint8_t& bt) {
+    for (uint32_t i = 0; i < cnt; i++) iWriteByte(addr + i, bt);
 }
 
-void LC_EEPROM::iReadBlock(const uint32_t& addr, const int8_t& defVal, int8_t* dst, const uint8_t& szDst) {
+void iReadBlock(const uint32_t& addr, const int8_t& defVal, int8_t* dst, const uint8_t& szDst) {
     memset(dst, defVal, szDst);                 // Заполнение массива INT8_MIN
     for (uint8_t i = 0; i < szDst; i++) {
-        uint8_t bt = LC_EEPROM::iReadByte(addr + i);
+        uint8_t bt = iReadByte(addr + i);
         if (bt != 0xFF) dst[i] = bt;  // Возможно вместо 0xFF стоит указать defVal, т.к. для char даьше 0 можно не читать
         else break;
     }
 }
-void LC_EEPROM::iWriteBlock(const uint32_t& addr, const uint8_t& defVal, const int8_t* src, const uint8_t& szSrc) {
-    LC_EEPROM::iFillBlock(addr, szSrc, defVal);
+void iWriteBlock(const uint32_t& addr, const uint8_t& defVal, const int8_t* src, const uint8_t& szSrc) {
+    iFillBlock(addr, szSrc, defVal);
     for (uint8_t i = 0; i < szSrc; i++)
         if (((defVal == 0xFF) && (src[i] == INT8_MIN)) || ((defVal == 0x00) && (src[i] == 0x00))) break;
-        else LC_EEPROM::iWriteByte(addr + i, src[i]);
+        else iWriteByte(addr + i, src[i]);
 }
 
 // ---------------------------------------------- Show EEPROM ---------------------------------------------------------
-void LC_EEPROM::show(const uint32_t& addrFrom, const uint32_t& addrTo, const uint8_t& quan) {
+void show(const uint32_t& addrFrom, const uint32_t& addrTo, const uint8_t& quan) {
     Serial.println("External EEPROM memory...");
 
     // Header of table
     Serial.print(F("\n     "));
     for (uint8_t i = 0; i < quan; i++) {
-        String tmpStr = LC_EEPROM::_preFix(String(i, HEX), 2, '0') + ' ';
+        String tmpStr = _preFix(String(i, HEX), 2, '0') + ' ';
         tmpStr.toUpperCase();
         Serial.print(tmpStr);
     }
     Serial.println();
     for (uint16_t j = (addrFrom / quan); j < (addrTo / quan + 1); j++) {
-        String tSt = LC_EEPROM::_preFix(String(j * quan, HEX), 4, '0') + ' ';
+        String tSt = _preFix(String(j * quan, HEX), 4, '0') + ' ';
         tSt.toUpperCase();
         Serial.print(tSt);                                    
         for (uint8_t i = 0; i < quan; i++) {
-            String tmpStr = LC_EEPROM::_preFix(String(LC_EEPROM::readByte((j * quan) + i), HEX), 2, '0') + ' ';
+            String tmpStr = _preFix(String(readByte((j * quan) + i), HEX), 2, '0') + ' ';
             tmpStr.toUpperCase();
             Serial.print(tmpStr);
         }
@@ -202,23 +204,23 @@ void LC_EEPROM::show(const uint32_t& addrFrom, const uint32_t& addrTo, const uin
     }
 }
 
-void LC_EEPROM::iShow(const uint32_t& addrFrom, const uint32_t& addrTo, const uint8_t& quan = 32) {
+void iShow(const uint32_t& addrFrom, const uint32_t& addrTo, const uint8_t& quan = 32) {
     Serial.println("Internal EEPROM memory...");
 
     // Header of table
     Serial.print(F("\n     "));
     for (uint8_t i = 0; i < quan; i++) {
-        String tmpStr = LC_EEPROM::_preFix(String(i, HEX), 2, '0') + ' ';
+        String tmpStr = _preFix(String(i, HEX), 2, '0') + ' ';
         tmpStr.toUpperCase();
         Serial.print(tmpStr);
     }
     Serial.println();
     for (uint16_t j = (addrFrom / quan); j < (addrTo / quan + 1); j++) {
-        String tSt = LC_EEPROM::_preFix(String(j * quan, HEX), 4, '0') + ' ';
+        String tSt = _preFix(String(j * quan, HEX), 4, '0') + ' ';
         tSt.toUpperCase();
         Serial.print(tSt);                                    // Номер байта в строке
         for (uint8_t i = 0; i < quan; i++) {
-            String tmpStr = LC_EEPROM::_preFix(String(LC_EEPROM::iReadByte((j * quan) + i), HEX), 2, '0') + ' ';
+            String tmpStr = _preFix(String(iReadByte((j * quan) + i), HEX), 2, '0') + ' ';
             tmpStr.toUpperCase();
             Serial.print(tmpStr);
         }
@@ -227,18 +229,18 @@ void LC_EEPROM::iShow(const uint32_t& addrFrom, const uint32_t& addrTo, const ui
 }
 
 // DESTRUCTOR
-LC_EEPROM::~LC_EEPROM() {
+~LC_EEPROM() {
 
 };
 
 // PRIVATE FUNCTIONS
-void LC_EEPROM::_writeAddr(const uint32_t& addr) {
+void _writeAddr(const uint32_t& addr) {
     Wire.beginTransmission(_eepromAddr);
     Wire.write((byte*)&addr, 2);
     Wire.endTransmission();
 }
 
-String LC_EEPROM::_preFix(String str, byte quan, char chr = '0') {
+String _preFix(String str, byte quan, char chr = '0') {
     String result = str;
     for (uint8_t i = 0; i < quan - str.length(); i++) result = chr + result;
     return result;
