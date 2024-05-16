@@ -43,13 +43,7 @@ uint8_t readByte(const uint32_t& addr) {
 }
 
 void writeByte(const uint32_t& addr, const uint8_t& wByte){
-    if (readByte(addr) != wByte) {
-        Wire.beginTransmission(_eepromAddr);
-        Wire.write((byte*)&addr, 2);
-        Wire.write(wByte);
-        Wire.endTransmission();
-        delay(5);
-    }
+    if (readByte(addr) != wByte) _writeAddr(addr, wByte);
 }
 
 uint16_t readInt(const uint32_t& addr) {
@@ -234,10 +228,15 @@ void iShow(const uint32_t& addrFrom, const uint32_t& addrTo, const uint8_t& quan
 };
 
 // PRIVATE FUNCTIONS
-void _writeAddr(const uint32_t& addr) {
+void _writeAddr(const uint32_t& addr, const uint8_t? wByte = NULL) {
     Wire.beginTransmission(_eepromAddr);
-    Wire.write((byte*)&addr, 2);
+    
+    if (_nAddrBytes == 2) Wire.write(static_cast<uint8_t>(addr >> 8));    // high addr byte
+    Wire.write(static_cast<uint8_t>(addr));                               // low addr byte
+
+    if(wByte != NULL)  Wire.write(wByte);
     Wire.endTransmission();
+    if (wByte != NULL) delayMicroseconds(500);
 }
 
 String _preFix(String str, byte quan, char chr = '0') {
