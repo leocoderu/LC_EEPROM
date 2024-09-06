@@ -1,0 +1,56 @@
+#######################################
+# Syntax Coloring Map For LC_EEPROM
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+LC_EEPROM		KEYWORD1
+LC_EXT_EEPROM	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+begin			KEYWORD2
+extReadByte		KEYWORD2
+extWriteByte	KEYWORD2
+extReadInt		KEYWORD2
+extWriteInt		KEYWORD2
+extReadLong		KEYWORD2
+extWriteLong	KEYWORD2
+extReadStr		KEYWORD2
+extWriteStr		KEYWORD2
+extFillBlock	KEYWORD2
+extReadBlock	KEYWORD2
+extWriteBlock	KEYWORD2
+intReadByte		KEYWORD2
+intWriteByte	KEYWORD2
+intReadInt		KEYWORD2
+intWriteInt		KEYWORD2
+intReadLong		KEYWORD2
+intWriteLong	KEYWORD2
+intReadStr		KEYWORD2
+intWriteStr		KEYWORD2
+intFillBlock	KEYWORD2
+intReadBlock	KEYWORD2
+intWriteBlock	KEYWORD2
+extShow			KEYWORD2
+intShow			KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+kbits_2		LITERAL1
+kbits_4		LITERAL1
+kbits_8		LITERAL1
+kbits_16	LITERAL1
+kbits_32	LITERAL1
+kbits_64	LITERAL1
+kbits_128	LITERAL1
+kbits_256	LITERAL1
+kbits_512	LITERAL1
+kbits_1024	LITERAL1
+kbits_2048	LITERAL1
+lowSpeed	LITERAL1
+highSpeed	LITERAL1
