@@ -2,3 +2,5 @@
 *.7z
 .development
 src/.vs
+src/.idea
+src/bak
