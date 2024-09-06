@@ -11,10 +11,10 @@ LC_EXT_EEPROM	KEYWORD1
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
-begin			KEYWORD2
-extReadByte		KEYWORD2
-extWriteByte	KEYWORD2
-extReadInt		KEYWORD2
+begin			    KEYWORD2
+extReadByte   KEYWORD2
+extWriteByte  KEYWORD2
+extReadInt    KEYWORD2
 extWriteInt		KEYWORD2
 extReadLong		KEYWORD2
 extWriteLong	KEYWORD2
@@ -34,8 +34,8 @@ intWriteStr		KEYWORD2
 intFillBlock	KEYWORD2
 intReadBlock	KEYWORD2
 intWriteBlock	KEYWORD2
-extShow			KEYWORD2
-intShow			KEYWORD2
+extShow			  KEYWORD2
+intShow			  KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
