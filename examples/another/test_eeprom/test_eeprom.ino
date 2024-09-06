@@ -1,6 +1,6 @@
 #include <Wire.h>
 #include <EEPROM.h>
-#include <LC_EEPROM.h>              // ������� ������ � EEPROM �������
+#include <LC_EEPROM.h>              
 
 LC_EEPROM extEEPROM(LC_EEPROM::kbits_512, 3);   // page size was 64
 
@@ -76,8 +76,4 @@ T sum(T x, T y){
  return x + y; 
 }*/
 
-void loop()
-{
-
-
-}
+void loop(){}
