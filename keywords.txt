@@ -5,37 +5,52 @@
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
-LC_EEPROM	KEYWORD1
+LC_EEPROM		KEYWORD1
+LC_EXT_EEPROM	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
-begin		KEYWORD2
-readByte	KEYWORD2
-writeByte	KEYWORD2
-readInt		KEYWORD2
-writeInt	KEYWORD2
-readLong	KEYWORD2
-writeLong	KEYWORD2
-readStr		KEYWORD2
-writeStr	KEYWORD2
-fillBlock	KEYWORD2
-readBlock	KEYWORD2
-writeBlock	KEYWORD2
-iReadByte	KEYWORD2
-iWriteByte	KEYWORD2
-iReadInt	KEYWORD2
-iWriteInt	KEYWORD2
-iReadLong	KEYWORD2
-iWriteLong	KEYWORD2
-iReadStr	KEYWORD2
-iWriteStr	KEYWORD2
-iFillBlock	KEYWORD2
-iReadBlock	KEYWORD2
-iWriteBlock	KEYWORD2
-show		KEYWORD2
-iShow		KEYWORD2
+begin			KEYWORD2
+extReadByte		KEYWORD2
+extWriteByte	KEYWORD2
+extReadInt		KEYWORD2
+extWriteInt		KEYWORD2
+extReadLong		KEYWORD2
+extWriteLong	KEYWORD2
+extReadStr		KEYWORD2
+extWriteStr		KEYWORD2
+extFillBlock	KEYWORD2
+extReadBlock	KEYWORD2
+extWriteBlock	KEYWORD2
+intReadByte		KEYWORD2
+intWriteByte	KEYWORD2
+intReadInt		KEYWORD2
+intWriteInt		KEYWORD2
+intReadLong		KEYWORD2
+intWriteLong	KEYWORD2
+intReadStr		KEYWORD2
+intWriteStr		KEYWORD2
+intFillBlock	KEYWORD2
+intReadBlock	KEYWORD2
+intWriteBlock	KEYWORD2
+extShow			KEYWORD2
+intShow			KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
 #######################################
+
+kbits_2		LITERAL1
+kbits_4		LITERAL1
+kbits_8		LITERAL1
+kbits_16	LITERAL1
+kbits_32	LITERAL1
+kbits_64	LITERAL1
+kbits_128	LITERAL1
+kbits_256	LITERAL1
+kbits_512	LITERAL1
+kbits_1024	LITERAL1
+kbits_2048	LITERAL1
+lowSpeed	LITERAL1
+highSpeed	LITERAL1
