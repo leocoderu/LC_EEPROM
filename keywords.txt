@@ -36,6 +36,8 @@ intReadBlock	KEYWORD2
 intWriteBlock	KEYWORD2
 extShow			KEYWORD2
 intShow			KEYWORD2
+getTotalCapacity KEYWORD2
+getCtrlByte 	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)

@@ -2,10 +2,11 @@
 #define ADDR 0x0400
 
 LC_EEPROM eeprom;
-LC_EXT_EEPROM ex_eeprom(LC_EXT_EEPROM::kbits_512, 1, 64);   
+//LC_EXT_EEPROM ex_eeprom(LC_EXT_EEPROM::kbits_512, 1);   
+LC_EXT_EEPROM ex_eeprom(_24LC512, 1);   
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600); delay(200);               // Delay for init EEPROM memory
   
   Serial.println();  
   Serial.println("------------------------------------------------------");
@@ -15,113 +16,196 @@ void setup() {
   Serial.println("------------------------------------------------------");
   Serial.print(" Byte   | ");
 
-  uint8_t n = 12;                               // Default data for read/write test
-  uint8_t j = 34;                               // Another data for update test
-  bool    r = true;                             // Result of test
-  uint8_t b = eeprom.intReadByte(ADDR);         // Save default value
+  bool    resO = true;                              // Result of test
+  uint8_t resW = 0;                                 // Result of Write operation
+
+  // Test Byte
+  uint8_t newB = 12;                                // Default data for read/write test
+  uint8_t updB = 34;                                // Another data for update test
+  uint8_t defB = eeprom.intReadByte(ADDR);          // Save default value  
+  uint8_t getB = 0;                                 // Get Byte Value
+  
   // Write
-  eeprom.intWriteByte(ADDR, n);                 // Write default data
-  uint8_t w = eeprom.intReadByte(ADDR);         // Reading the data that we just wrote
-  Serial.print((b == w) ? "error" : "pass ");    // If new value equil first read value -> write error or value was changed
-  if (b == w) r = false;
+  resW = eeprom.intWriteByte(ADDR, newB);     // Write default data
+  Serial.print((resW == 0) ? "pass " : "error");   // If new value equil first read value -> write error or value was changed
+  if (resW > 0) resO = false;
   Serial.print("  | ");
+
   // Read
-  Serial.print((w != n) ? "error" : "pass ");    // If value not equil wrote value early, it's error
-  if (w != n) r = false;
+  getB = eeprom.intReadByte(ADDR);                  // Read Data by Address
+  Serial.print((getB == newB) ? "pass " : "error"); // If value not equil wrote value early, it's error
+  if (getB != newB) resO = false;
   Serial.print("  | "); 
+  
   // Update
-  eeprom.intWriteByte(ADDR, j);
-  uint8_t m = eeprom.intReadByte(ADDR);
-  Serial.print((m != j) ? "error" : "pass ");    // If value not equil wrote value early, it's error
-  if (m != j) r = false;
+  resW = eeprom.intWriteByte(ADDR, updB);           // Update Data by Address
+  Serial.print((resW == 0) ? "pass " : "error" );   // If value not equil wrote value early, it's error
+  if (resW > 0) resO = false;
   Serial.print("  | ");  
+  
   // Delete
-  eeprom.intWriteByte(ADDR, b);                 // Return default value
-  uint8_t z = eeprom.intReadByte(ADDR);         // Check operation
-  Serial.print((b != z) ? "error" : "pass ");    // If value not equil wrote value early, it's error
-  if (b != z) r = false;
+  resW = eeprom.intWriteByte(ADDR, defB);           // Return default value
+  Serial.print((resW == 0) ? "pass " : "error");    // If value not equil wrote value early, it's error
+  if (resW > 0) resO = false;
   Serial.print("  | ");
+  
   // Result of operation
-  Serial.println(r ? "success" : "error");
+  Serial.println(resO ? "success" : "error");
   
   Serial.println("---------------------------------------------------------");
   Serial.print(" Int    | ");
-  uint16_t n2 = 500;                               // Default data for read/write test
-  uint16_t j2 = 1045;                              // Another data for update test
-  bool     r2 = true;                              // Result of test
-  uint16_t b2 = eeprom.intReadInt(ADDR);           // Save default value
+  
+  // Test Integer
+  uint16_t newI = 500;                             // Default data for read/write test
+  uint16_t updI = 1045;                            // Another data for update test
+  uint16_t defI = eeprom.intReadInt(ADDR);         // Save default value
+  uint16_t getI = 0;                               // Get Data Value
+  resO = true;                                     // Result of test
+    
   // Write
-  eeprom.intWriteInt(ADDR, n2);                    // Write default data
-  uint16_t w2 = eeprom.intReadInt(ADDR);           // Reading the data that we just wrote
-  Serial.print((b2 == w2) ? "error" : "pass ");     // If new value equil first read value -> write error or value was changed
-  if (b2 == w2) r2 = false;
+  resW = eeprom.intWriteInt(ADDR, newI);           // Write default data
+  Serial.print((resW == 0) ? "pass " : "error");   // If new value equil first read value -> write error or value was changed
+  if (resW > 0) resO = false;
   Serial.print("  | ");
+  
   // Read
-  Serial.print((w2 != n2) ? "error" : "pass ");     // If value not equil wrote value early, it's error
-  if (w2 != n2) r2 = false;
+  getI = eeprom.intReadInt(ADDR);                  // Read Data by Address
+  Serial.print((getI == newI) ? "pass " : "error");// If value not equil wrote value early, it's error
+  if (getI != newI) resO = false;
   Serial.print("  | "); 
+  
   // Update
-  eeprom.intWriteInt(ADDR, j2);
-  uint16_t m2 = eeprom.intReadInt(ADDR);
-  Serial.print((m2 != j2) ? "error" : "pass ");     // If value not equil wrote value early, it's error
-  if (m2 != j2) r2 = false;
+  resW = eeprom.intWriteInt(ADDR, updI);
+  Serial.print((resW == 0) ? "pass " : "error");   // If new value equil first read value -> write error or value was changed
+  if (resW > 0) resO = false;
   Serial.print("  | ");  
+  
   // Delete
-  eeprom.intWriteInt(ADDR, b2);                    // Return default value
-  uint16_t z2 = eeprom.intReadInt(ADDR);           // Check operation
-  Serial.print((b2 != z2) ? "error" : "pass ");     // If value not equil wrote value early, it's error
-  if (b2 != z2) r2 = false;
+  resW = eeprom.intWriteInt(ADDR, defI);           // Return default value
+  Serial.print((resW == 0) ? "pass " : "error");   // If new value equil first read value -> write error or value was changed
+  if (resW > 0) resO = false;
   Serial.print("  | ");
+  
   // Result of operation
-  Serial.println(r2 ? "success" : "error");
+  Serial.println(resO ? "success" : "error");
 
   Serial.println("---------------------------------------------------------");
   Serial.print(" Long   | ");
-  uint32_t n3 = 1265535;                           // Default data for read/write test
-  uint32_t j3 = 1754658;                           // Another data for update test
-  bool     r3 = true;                              // Result of test
-  uint32_t b3 = eeprom.intReadLong(ADDR);           // Save default value
+
+  // Test Long
+  uint32_t newL = 1265535;                             // Default data for read/write test
+  uint32_t updL = 1754658;                            // Another data for update test
+  uint32_t defL = eeprom.intReadLong(ADDR);         // Save default value
+  uint32_t getL = 0;                               // Get Data Value
+  resO = true;                                     // Result of test
+  
   // Write
-  eeprom.intWriteLong(ADDR, n3);                    // Write default data
-  uint32_t w3 = eeprom.intReadLong(ADDR);           // Reading the data that we just wrote
-  Serial.print((b3 == w3) ? "error" : "pass ");     // If new value equil first read value -> write error or value was changed
-  if (b3 == w3) r3 = false;
+  resW = eeprom.intWriteLong(ADDR, newL);                    // Write default data
+  Serial.print((resW == 0) ? "pass " : "error");     // If new value equil first read value -> write error or value was changed
+  if (resW != 0) resO = false;
   Serial.print("  | ");
+  
   // Read
-  Serial.print((w3 != n3) ? "error" : "pass ");     // If value not equil wrote value early, it's error
-  if (w3 != n3) r3 = false;
+  getL = eeprom.intReadLong(ADDR);
+  Serial.print((getL == newL) ? "pass " : "error");     // If value not equil wrote value early, it's error
+  if (getL != newL) resO = false;
   Serial.print("  | "); 
   
   // Update
-  eeprom.intWriteLong(ADDR, j3);
-  uint32_t m3 = eeprom.intReadLong(ADDR);
-  Serial.print((m3 != j3) ? "error" : "pass ");     // If value not equil wrote value early, it's error
-  if (m3 != j3) r3 = false;
+  resW = eeprom.intWriteLong(ADDR, updL);
+  Serial.print((resW == 0) ? "pass " : "error");     // If new value equil first read value -> write error or value was changed
+  if (resW != 0) resO = false;
   Serial.print("  | ");  
-
-  Serial.println();
-  Serial.print("--- ");Serial.print(j3);Serial.println(" ---");
-  Serial.print("--- ");Serial.print(m3);Serial.println(" ---");
-
-  eeprom.intShow(0x0400, 0x04FF, 32);
   
   // Delete
-  eeprom.intWriteLong(ADDR, b3);                    // Return default value
-  uint32_t z3 = eeprom.intReadLong(ADDR);           // Check operation
-  Serial.print((b3 != z3) ? "error" : "pass ");     // If value not equil wrote value early, it's error
-  if (b3 != z3) r3 = false;
+  resW = eeprom.intWriteLong(ADDR, defL);                    // Return default value
+  Serial.print((resW == 0) ? "pass " : "error");     // If new value equil first read value -> write error or value was changed
+  if (resW != 0) resO = false;
   Serial.print("  | ");
+  
   // Result of operation
-  Serial.println(r3 ? "success" : "error");
+  Serial.println(resO ? "success" : "error");
 
+  Serial.println("---------------------------------------------------------");  
+  Serial.print(" String | ");
+  // Test String
+  // Default data for read/write test 194 symbols                             
+  String newS = "Testing long long long string, its the biggest testing string #1 Testing long long long string, its the biggest testing string #2 Testing long long long string, its the biggest testing string #3";
+  // Another data for update test 168 symblos
+  String updS = "Another datd for tersting long long very long string #1 Another datd for tersting long long very long string #2 Another datd for tersting long long very long string #3";
+  String defS = eeprom.intReadStr(ADDR, 194);     // Save default value
+  String getS = "";                               // Get Data Value
+  resO = true;                                    // Result of test
+
+  // Write
+  resW = eeprom.intWriteStr(ADDR, newS);                    // Write default data
+  Serial.print((resW == 0) ? "pass " : "error");     // If new value equil first read value -> write error or value was changed
+  if (resW != 0) resO = false;
+  Serial.print("  | ");
+  
+  // Read
+  getS = eeprom.intReadStr(ADDR, newS.length());
+  Serial.print((getS == newS) ? "pass " : "error");     // If value not equil wrote value early, it's error
+  if (getS != newS) resO = false;
+  Serial.print("  | "); 
+
+  // Update
+  resW = eeprom.intWriteStr(ADDR, updS);
+  Serial.print((resW == 0) ? "pass " : "error");     // If new value equil first read value -> write error or value was changed
+  if (resW != 0) resO = false;
+  Serial.print("  | ");  
+  
+  // Delete
+  resW = eeprom.intWriteStr(ADDR, defS);             // Return default value
+  Serial.print((resW == 0) ? "pass " : "error");     // If new value equil first read value -> write error or value was changed
+  if (resW != 0) resO = false;
+  Serial.print("  | ");
+  
+  // Result of operation
+  Serial.println(resO ? "success" : "error");
   
   Serial.println("---------------------------------------------------------");  
-  Serial.println(" String | pass   | pass   | pass   | pass   | success");
-  Serial.println("---------------------------------------------------------");  
-  Serial.println(" Block  | pass   | pass   | pass   | pass   | success");
+  Serial.print(" Block  | ");
+  // Test Block
+  // Default data for read/write test 194 symbols                             
+  char* newBuf = "Testing long long long string, its the biggest testing string #1 Testing long long long string, its the biggest testing string #2 Testing long long long string, its the biggest testing string #3";
+  // Another data for update test 168 symblos
+  char* updBuf = "Another datd for tersting long long very long string #1 Another datd for tersting long long very long string #2 Another datd for tersting long long very long string #3";
+  char  defBuf[194];
+  eeprom.intReadBlock(ADDR, INT8_MIN, defBuf, sizeof(defBuf));  // Save default value
+  uint8_t  getBuf[194];                                         // Get Data Value
+  resO = true;                                                  // Result of test
+
+//  // Write
+//  resW = eeprom.intWriteBlock(ADDR, 0xFF, newBuf, sizeof(newBuf));                    // Write default data
+//  Serial.print((resW == 0) ? "pass " : "error");     // If new value equil first read value -> write error or value was changed
+//  if (resW != 0) resO = false;
+//  Serial.print("  | ");
+//
+//  // Read
+//  eeprom.intReadBlock(ADDR, 0xFF, getBuf, sizeof(getBuf));
+//  Serial.print((getBuf == newBuf) ? "pass " : "error");     // If value not equil wrote value early, it's error
+//  if (getS != newS) resO = false;
+//  Serial.print("  | "); 
+//
+//  // Update
+//  resW = eeprom.intWriteBlock(ADDR, 0xFF, updBuf, sizeof(updBuf));
+//  Serial.print((resW == 0) ? "pass " : "error");     // If new value equil first read value -> write error or value was changed
+//  if (resW != 0) resO = false;
+//  Serial.print("  | ");  
+//  
+//  // Delete
+//  resW = eeprom.intWriteBlock(ADDR, (int8_t)-127, defBuf, (int8_t)194);             // Return default value
+//  Serial.print((resW == 0) ? "pass " : "error");     // If new value equil first read value -> write error or value was changed
+//  if (resW != 0) resO = false;
+//  Serial.print("  | ");
+//  
+//  // Result of operation
+//  Serial.println(resO ? "success" : "error");
+
   Serial.println("---------------------------------------------------------");
 
-  
+  eeprom.intShow(ADDR, ADDR + 0xFF, 32);
 
 //  ex_eeprom.begin(LC_EXT_EEPROM::highSpeed);                      // LC_EEPROM::lowSpeed / LC_EEPROM::highSpeed / LC_EEPROM::maxSpeed
 //  
