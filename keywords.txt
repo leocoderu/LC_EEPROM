@@ -11,33 +11,33 @@ LC_EXT_EEPROM	KEYWORD1
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
-begin			KEYWORD2
-extReadByte		KEYWORD2
-extWriteByte	KEYWORD2
-extReadInt		KEYWORD2
-extWriteInt		KEYWORD2
-extReadLong		KEYWORD2
-extWriteLong	KEYWORD2
-extReadStr		KEYWORD2
-extWriteStr		KEYWORD2
-extFillBlock	KEYWORD2
-extReadBlock	KEYWORD2
-extWriteBlock	KEYWORD2
-intReadByte		KEYWORD2
-intWriteByte	KEYWORD2
-intReadInt		KEYWORD2
-intWriteInt		KEYWORD2
-intReadLong		KEYWORD2
-intWriteLong	KEYWORD2
-intReadStr		KEYWORD2
-intWriteStr		KEYWORD2
-intFillBlock	KEYWORD2
-intReadBlock	KEYWORD2
-intWriteBlock	KEYWORD2
-extShow			KEYWORD2
-intShow			KEYWORD2
-getTotalCapacity KEYWORD2
-getCtrlByte 	KEYWORD2
+begin				KEYWORD2
+extReadByte			KEYWORD2
+extWriteByte		KEYWORD2
+extReadInt			KEYWORD2
+extWriteInt			KEYWORD2
+extReadLong			KEYWORD2
+extWriteLong		KEYWORD2
+extReadStr			KEYWORD2
+extWriteStr			KEYWORD2
+extFillBlock		KEYWORD2
+extReadBlock		KEYWORD2
+extWriteBlock		KEYWORD2
+intReadByte			KEYWORD2
+intWriteByte		KEYWORD2
+intReadInt			KEYWORD2
+intWriteInt			KEYWORD2
+intReadLong			KEYWORD2
+intWriteLong		KEYWORD2
+intReadStr			KEYWORD2
+intWriteStr			KEYWORD2
+intFillBlock		KEYWORD2
+intReadBlock		KEYWORD2
+intWriteBlock		KEYWORD2
+extShow				KEYWORD2
+intShow				KEYWORD2
+getTotalCapacity	KEYWORD2
+getCtrlByte 		KEYWORD2
 
 #######################################
 # Constants (LITERAL1)

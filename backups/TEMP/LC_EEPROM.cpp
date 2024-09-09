@@ -174,7 +174,7 @@ void LC_EEPROM::iFillBlock(const uint32_t& addr, const uint32_t& cnt, const uint
 }
 
 void LC_EEPROM::iReadBlock(const uint32_t& addr, const int8_t& defVal, int8_t* dst, const uint8_t& szDst) {
-    memset(dst, defVal, szDst);                 // ���������� ������� INT8_MIN
+    memset(dst, defVal, szDst);                 // INT8_MIN
     for (uint8_t i = 0; i < szDst; i++) {
         uint8_t bt = LC_EEPROM::iReadByte(addr + i);
         if (bt == 0xFF) break;
@@ -260,7 +260,8 @@ uint8_t LC_EEPROM::_write(uint32_t addr, uint8_t* wData, uint16_t qBytes) {
     while(qBytes > 0){
         uint16_t nPage = _pSize - (addr & (_pSize - 1));                // Part of page size for write data from address
         uint16_t nWrite = (qBytes < nPage) ? qBytes : nPage;            // Quantity of Bytes that you cat write to page
-        uint8_t  ctrlByte = _eepromAddr | (uint8_t)((addr / 1024.0) / (_devCapacity / 8.0));
+        //uint8_t  ctrlByte = _eepromAddr | (uint8_t)((addr / 1024.0) / (_devCapacity / 8.0));
+        uint8_t  ctrlByte = getCtrlByte(addr);
 
         Wire.beginTransmission(ctrlByte);
         LC_EEPROM::_sendAddr(addr);

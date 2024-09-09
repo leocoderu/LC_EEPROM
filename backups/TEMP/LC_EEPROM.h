@@ -90,11 +90,11 @@ class LC_EEPROM {
         const uint8_t  _pSize = 30; // page size in bytes, because buffer Wire is 32 bytes!!!, 2-bytes address & 30-Data
         uint32_t _totalCapacity;    // capacity of all EEPROM devices on the bus, in bytes
 
-        static uint8_t rxBufferIndex;
+        /*static uint8_t rxBufferIndex;
         static uint8_t rxBufferLength;
         static uint8_t txBufferIndex;
         static uint8_t txBufferLength;
-        void _begin();
+        void _begin();*/
 };
 
 #endif	/* LEOCODE_EEPROM_H */
