@@ -42,23 +42,25 @@ String LC_EEPROM::intReadStr(const uint32_t& addr, const uint16_t& quan) {
 }
 
 // Returns Block data by address with unsigned byte array, like byte array
-uint8_t LC_EEPROM::intReadBlockU(const uint32_t& addr, const uint8_t& defVal, uint8_t* dst, const uint8_t& szDst) {
+uint8_t LC_EEPROM::intReadBlock(const uint32_t& addr, uint8_t* dst, const uint8_t& szDst) {
     if ((addr + szDst) > EEPROM.length()) return 1; // If we try read block outside, return error
-    memset(dst, defVal, szDst);                     // 0xFF
+    memset(dst, 0xFF, szDst);                     
     for (uint8_t i = 0; i < szDst; i++) {
-        uint8_t bt = intReadByte(addr + i);
-        dst[i] = bt;
+        //uint8_t bt = intReadByte(addr + i);
+        //dst[i] = bt;
+        dst[i] = intReadByte(addr + i);
     }
     return 0;
 }
 
 // Returns Block data by address with signed byte array, like char array
-uint8_t LC_EEPROM::intReadBlock(const uint32_t& addr, const int8_t& defVal, int8_t* dst, const uint8_t& szDst) {
+//uint8_t LC_EEPROM::intReadBlock(const uint32_t& addr, const int8_t& defVal, int8_t* dst, const uint8_t& szDst) {
+uint8_t LC_EEPROM::intReadBlock(const uint32_t& addr, char* dst, const uint8_t& szDst) {
     if ((addr + szDst) > EEPROM.length()) return 1; // If we try read block outside, return error
-    memset(dst, defVal, szDst);                     // INT8_MIN
+    memset(dst, 0x00, szDst);                     
     for (uint8_t i = 0; i < szDst; i++) {
         uint8_t bt = intReadByte(addr + i);
-        if (bt == 0xFF) break;
+        if (bt == 0x00) break;
         dst[i] = bt;
     }
     return 0;
@@ -122,16 +124,43 @@ uint8_t LC_EEPROM::intFillBlock(const uint32_t& addr, const uint32_t& cnt, const
     return 1;
 }
 
-// Write Block data by address
-uint8_t LC_EEPROM::intWriteBlock(const uint32_t& addr, const uint8_t& defVal, const int8_t* src, const uint8_t& szSrc) {
+// Write Block with BYTE data by address
+uint8_t LC_EEPROM::intWriteBlock(const uint32_t& addr, const uint8_t* src, const uint8_t& szSrc) {
     if ((addr >= 0) && ((addr + szSrc) < EEPROM.length())) {
-        intFillBlock(addr, szSrc, defVal);
-        for (uint8_t i = 0; i < szSrc; i++)
-            if (((defVal == 0xFF) && (src[i] == INT8_MIN)) || ((defVal == 0x00) && (src[i] == 0x00))) break;
-                else intWriteByte(addr + i, src[i]);
-        char buff[szSrc] = {};
-        intReadBlock(addr, defVal, buff, sizeof(buff));        
-        if (strcmp(buff, src) != 0) return 2;
+        intFillBlock(addr, szSrc, 0xFF);
+        
+        for (uint8_t i = 0; i < szSrc; i++) intWriteByte(addr + i, src[i]);        
+        
+        uint8_t buff[szSrc];
+        intReadBlock(addr, buff, sizeof(buff));        
+        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+
+        return 0;
+    }
+    return 1;
+}
+
+//void printB(char* src, const uint8_t& sz) {
+//    Serial.print("[");
+//    for (uint8_t n = 0; n < sz; n++) Serial.print(src[n]);
+//    Serial.println("]");
+//}
+
+// Write Block with CHAR data by address
+uint8_t LC_EEPROM::intWriteBlock(const uint32_t& addr, const char* src, const uint8_t& szSrc) {
+    if ((addr >= 0) && ((addr + szSrc) < EEPROM.length())) {
+        intFillBlock(addr, szSrc, 0x00);
+        for (uint8_t i = 0; i < szSrc; i++) {
+            if (src[i] == 0x00) break;
+            intWriteByte(addr + i, src[i]);
+        }
+        char buff[szSrc];
+        intReadBlock(addr, buff, sizeof(buff));
+        //printB(buff, sizeof(buff));
+        //printB(src, szSrc);
+        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+
+        //if (strcmp(buff, src) != 0) return 2;
         return 0;
     }
     return 1;
@@ -164,10 +193,17 @@ void LC_EEPROM::intShow(const uint32_t& addrFrom, const uint32_t& addrTo, const 
 
 LC_EEPROM::~LC_EEPROM() {}
 
-// ------------------------------------------- PRIVATE FUNCTIONS -------------------------------------------------------
+// ------------------------------------------ PROTECTED FUNCTIONS ------------------------------------------------------
 String LC_EEPROM::_preFix(String str, uint8_t quan, char chr = '0') {
     String result = str;
     for (uint8_t i = 0; i < quan - str.length(); i++) result = chr + result;
     return result;
 }
 
+// ------------------------------------------- PRIVATE FUNCTIONS -------------------------------------------------------
+bool LC_EEPROM::_cmpBuffers(char* src, const uint8_t& szSrc, char* dst, const uint8_t& szDst) {
+    if (szSrc != szDst) return false;
+    for (uint8_t i = 0; i < szSrc; i++)
+        if (src[i] != dst[i]) return false;
+    return true;
+}

@@ -89,7 +89,6 @@ enum twiFreq_t {
 class LC_EEPROM{
 
 public:
-
 	LC_EEPROM();
 
     // Function for Internal EEPROM memory
@@ -97,22 +96,26 @@ public:
     uint16_t    intReadInt(const uint32_t& addr);
     uint32_t    intReadLong(const uint32_t& addr);
     String      intReadStr(const uint32_t& addr, const uint16_t& quan);
-    uint8_t     intReadBlockU(const uint32_t& addr, const uint8_t& defVal, uint8_t* dst, const uint8_t& szDst);
-    uint8_t     intReadBlock(const uint32_t& addr, const int8_t& defVal, int8_t* dst, const uint8_t& szDst);
+    uint8_t     intReadBlock(const uint32_t& addr, uint8_t* dst, const uint8_t& szDst);
+    uint8_t     intReadBlock(const uint32_t& addr, char* dst, const uint8_t& szDst);
 
     uint8_t     intWriteByte(const uint32_t& addr, const uint8_t& wByte);
     uint8_t     intWriteInt(const uint32_t& addr, const uint16_t& wInt);
     uint8_t     intWriteLong(const uint32_t& addr, const uint32_t& wLong);
     uint8_t     intWriteStr(const uint32_t& addr, const String& sendStr);
     uint8_t     intFillBlock(const uint32_t& addr, const uint32_t& cnt, const uint8_t& bt);
-    uint8_t     intWriteBlock(const uint32_t& addr, const uint8_t& defVal, const int8_t* src, const uint8_t& szSrc);
-    
+    uint8_t     intWriteBlock(const uint32_t& addr, const uint8_t* src, const uint8_t& szSrc);
+    uint8_t     intWriteBlock(const uint32_t& addr, const char* src, const uint8_t& szSrc);
+
     void        intShow(const uint32_t& addrFrom = 0x0000, const uint32_t& addrTo = EEPROM.length() - 1, const uint8_t& quan = 32);
 
 	~LC_EEPROM();
 
 protected:
     String _preFix(String str, uint8_t quan, char chr);
+
+private:
+    bool        _cmpBuffers(char* src, const uint8_t& szSrc, char* dst, const uint8_t& szDst);
 };
 
 
@@ -166,7 +169,7 @@ public:
     uint32_t extReadLong(const uint32_t& addr);
     String   extReadStr(const uint32_t& addr, const uint16_t& quan);
     uint8_t  extReadBlock(const uint32_t& addr, const uint8_t& defVal, uint8_t* dst, const uint8_t& szDst);
-    uint8_t  extReadBlock(const uint32_t& addr, const int8_t& defVal, int8_t* dst, const uint8_t& szDst);
+    uint8_t  extReadBlock(const uint32_t& addr, const int8_t& defVal, int8_t* dst, const uint8_t& szDst);    
 
     uint8_t  extWriteByte(const uint32_t& addr, const uint8_t& wByte);
     uint8_t  extWriteInt(const uint32_t& addr, const uint16_t& wInt);

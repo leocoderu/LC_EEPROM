@@ -5,7 +5,7 @@ LC_EEPROM eeprom;
 
 void setup(){
   Serial.begin(9600); delay(200);               // Delay for init EEPROM memory
-  Serial.println("begins....");
+  Serial.println();
 
   uint32_t  newV = 0x001AC622;                  // Default data for read/write test
   uint8_t   res = 0;                            // Variable for Result

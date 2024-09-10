@@ -5,6 +5,12 @@ LC_EEPROM eeprom;
 //LC_EXT_EEPROM ex_eeprom(LC_EXT_EEPROM::kbits_512, 1);   
 LC_EXT_EEPROM ex_eeprom(_24LC512, 1);   
 
+void printBuffChar(char* src, const uint8_t& sz) {
+  Serial.print("[");
+  for (uint8_t n = 0; n < sz; n++) Serial.print(src[n]);  
+  Serial.println("]");
+}
+
 void setup() {
   Serial.begin(9600); delay(200);               // Delay for init EEPROM memory
   
@@ -165,43 +171,82 @@ void setup() {
   Serial.println(resO ? "success" : "error");
   
   Serial.println("---------------------------------------------------------");  
-  Serial.print(" Block  | ");
+  Serial.print(" BlockC | ");
   // Test Block
   // Default data for read/write test 194 symbols                             
-  char* newBuf = "Testing long long long string, its the biggest testing string #1 Testing long long long string, its the biggest testing string #2 Testing long long long string, its the biggest testing string #3";
+  char newBuf[] = "Testing long long long string, its the biggest testing string #1 Testing long long long string, its the biggest testing string #2 Testing long long long string, its the biggest testing string #3";
   // Another data for update test 168 symblos
-  char* updBuf = "Another datd for tersting long long very long string #1 Another datd for tersting long long very long string #2 Another datd for tersting long long very long string #3";
-  char  defBuf[194];
-  eeprom.intReadBlock(ADDR, INT8_MIN, defBuf, sizeof(defBuf));  // Save default value
-  uint8_t  getBuf[194];                                         // Get Data Value
-  resO = true;                                                  // Result of test
+  char updBuf[] = "Another datd for tersting long long very long string #1 Another datd for tersting long long very long string #2 Another datd for tersting long long very long string #3";
+  char defBuf[194];
+  eeprom.intReadBlock(ADDR, defBuf, sizeof(defBuf));  // Save default value
+  uint8_t  getBuf[194];                               // Get Data Value
+  resO = true;                                        // Result of test
 
-//  // Write
-//  resW = eeprom.intWriteBlock(ADDR, 0xFF, newBuf, sizeof(newBuf));                    // Write default data
-//  Serial.print((resW == 0) ? "pass " : "error");     // If new value equil first read value -> write error or value was changed
-//  if (resW != 0) resO = false;
-//  Serial.print("  | ");
-//
-//  // Read
-//  eeprom.intReadBlock(ADDR, 0xFF, getBuf, sizeof(getBuf));
-//  Serial.print((getBuf == newBuf) ? "pass " : "error");     // If value not equil wrote value early, it's error
-//  if (getS != newS) resO = false;
-//  Serial.print("  | "); 
-//
-//  // Update
-//  resW = eeprom.intWriteBlock(ADDR, 0xFF, updBuf, sizeof(updBuf));
-//  Serial.print((resW == 0) ? "pass " : "error");     // If new value equil first read value -> write error or value was changed
-//  if (resW != 0) resO = false;
-//  Serial.print("  | ");  
-//  
-//  // Delete
-//  resW = eeprom.intWriteBlock(ADDR, (int8_t)-127, defBuf, (int8_t)194);             // Return default value
-//  Serial.print((resW == 0) ? "pass " : "error");     // If new value equil first read value -> write error or value was changed
-//  if (resW != 0) resO = false;
-//  Serial.print("  | ");
-//  
-//  // Result of operation
-//  Serial.println(resO ? "success" : "error");
+  // Write
+  resW = eeprom.intWriteBlock(ADDR, newBuf, sizeof(newBuf));                    // Write default data
+  Serial.print((resW == 0) ? "pass " : "error");     // If new value equil first read value -> write error or value was changed
+  if (resW != 0) resO = false;
+  Serial.print("  | ");
+
+  // Read
+  resW = eeprom.intReadBlock(ADDR, getBuf, sizeof(getBuf));
+  Serial.print((resW == 0) ? "pass " : "error");     // If value not equil wrote value early, it's error
+  if (resW != 0) resO = false;
+  Serial.print("  | "); 
+
+  // Update
+  resW = eeprom.intWriteBlock(ADDR, updBuf, sizeof(updBuf));
+  Serial.print((resW == 0) ? "pass " : "error");     // If new value equil first read value -> write error or value was changed
+  if (resW != 0) resO = false;
+  Serial.print("  | ");  
+  
+  // Delete
+  resW = eeprom.intWriteBlock(ADDR, defBuf, sizeof(defBuf));             // Return default value
+  Serial.print((resW == 0) ? "pass " : "error");     // If new value equil first read value -> write error or value was changed
+  if (resW != 0) resO = false;
+  Serial.print("  | ");
+  
+  // Result of operation
+  Serial.println(resO ? "success" : "error");
+
+  Serial.println("---------------------------------------------------------");
+  Serial.print(" BlockB | ");
+  // Test Block
+  // Default data for read/write test 194 symbols                             
+  uint8_t newBufB[] = { 0x0C, 0x18, 0x0F, 0x61, 0x86, 0x04, 0x5F, 0xD7, 0x2F, 0x4B, 0x5D, 0x1A, 0xFE, 0x02, 0x77, 0xAD, 0x83 }; // 17 digits
+  // Another data for update test
+  uint8_t updBufB[] = { 0xFC, 0xA8, 0x1F, 0x31, 0xF6, 0x74, 0x31, 0xA7, 0x24, 0x1B, 0x0D, 0xFF, 0x11, 0xD2, 0xAE, 0xA1, 0x13 }; // 17 digits
+  uint8_t defBufB[64];
+  eeprom.intReadBlock(ADDR, defBufB, sizeof(defBufB));  // Save default value
+  uint8_t  getBufB[64];                                // Get Data Value
+  resO = true;                                        // Result of test
+
+  // Write
+  resW = eeprom.intWriteBlock(ADDR, newBufB, sizeof(newBufB));                    // Write default data
+  Serial.print((resW == 0) ? "pass " : "error");     // If new value equil first read value -> write error or value was changed
+  if (resW != 0) resO = false;
+  Serial.print("  | ");
+
+  // Read
+  resW = eeprom.intReadBlock(ADDR, getBufB, sizeof(getBufB));
+  Serial.print((resW == 0) ? "pass " : "error");     // If value not equil wrote value early, it's error
+  if (resW != 0) resO = false;
+  Serial.print("  | "); 
+
+  // Update
+  resW = eeprom.intWriteBlock(ADDR, updBufB, sizeof(updBufB));
+  Serial.print((resW == 0) ? "pass " : "error");     // If new value equil first read value -> write error or value was changed
+  if (resW != 0) resO = false;
+  Serial.print("  | ");  
+  
+  // Delete
+  resW = eeprom.intWriteBlock(ADDR, defBufB, sizeof(defBufB));             // Return default value
+  Serial.print((resW == 0) ? "pass " : "error");     // If new value equil first read value -> write error or value was changed
+  if (resW != 0) resO = false;
+  Serial.print("  | ");
+  
+  // Result of operation
+  Serial.println(resO ? "success" : "error");
 
   Serial.println("---------------------------------------------------------");
 
