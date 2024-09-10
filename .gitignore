@@ -1,6 +1,15 @@
 *.zip
 *.7z
 .development
+*.bak
 src/.vs
 src/.idea
 src/bak
+*.vs
+*__vm
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.suo
+*.vsidx
+*.db

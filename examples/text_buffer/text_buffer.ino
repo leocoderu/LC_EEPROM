@@ -1,4 +1,7 @@
+
 char* info = "This is Long Long String, o it is not String it's array of char!!!";
+
+enum zzTop { z12567, z45471, z72564, z13568 };
 
 void intReadBlockChar(const uint16_t& addr, char* dst, const uint8_t& szDst) {
 	memset(dst, INT8_MIN, szDst);                 // Заполнение массива INT8_MIN
@@ -23,6 +26,8 @@ void setup()
 	char buff[30];
 	intReadBlockChar(0, buff, sizeof(buff));
 	printBuff(buff, sizeof(buff));
+
+	zzTop a = zzTop::z72564;
 }
 
 void loop(){}
