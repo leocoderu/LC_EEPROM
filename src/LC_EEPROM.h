@@ -10,9 +10,15 @@
 #include <EEPROM.h>
 #include <Wire.h> 
 
+#define I2CADDR 0x50    // eeprom i2c address
+
 // EEPROM size in kilobits.
 enum eeprom_model_t {
 //  Model          Size        Frequency   Page (Bytes)
+    _24C00,      // 128bit      400kHz      8
+    _24AA00,     // 128bit      400kHz      8
+    _24LC00,     // 128bit      400kHz      8
+
     _24C01,      // 1kBit       100kHz      8
     _24AA01,     // 1kBit       400kHz      8
     _24LC01,     // 1kBit       400kHz      8
@@ -65,27 +71,6 @@ enum eeprom_model_t {
     _24FC1025    // 1024kBit    1000kHz     128    
 };
 
-// EEPROM size in kilobits.
-//enum eeprom_size_t {
-//    kbits_2 = 2,
-//    kbits_4 = 4,
-//    kbits_8 = 8,
-//    kbits_16 = 16,
-//    kbits_32 = 32,
-//    kbits_64 = 64,
-//    kbits_128 = 128,
-//    kbits_256 = 256,
-//    kbits_512 = 512,
-//    kbits_1024 = 1024
-//};
-//// I2C clock frequency
-//enum twiFreq_t {
-//    lowSpeed  = 100000,     // 100kHz
-//    highSpeed = 400000,     // 400kHz
-//    maxSpeed  = 1000000     // 1000kHz <- Doesn't work correctly :( for 24FC512 only!!!
-//};
-
-
 class LC_EEPROM{
 
 public:
@@ -121,53 +106,27 @@ private:
 
 class LC_EXT_EEPROM : public LC_EEPROM {
 
-    uint16_t _devCapacity;      // capacity of one EEPROM device, in kbits
-    uint8_t  _eepromAddr = 0x50;// eeprom i2c address
-    uint8_t  _qDevice;          // number of devices on the bus
-    uint8_t  _pSize; // = 30;       // page size in bytes, because buffer Wire is 32 bytes!!!, 2-bytes address & 30-Data //TODO: Test with 64 and 128
     uint32_t _totalCapacity;    // capacity of all EEPROM devices on the bus, in bytes
+    uint16_t _devCapacity;      // capacity of one EEPROM device, in kbits
+    //uint8_t  _eepromAddr = 0x50;// eeprom i2c address
+    uint8_t  _qDevice;          // number of devices on the bus
+    uint8_t  _pSize; // = 30;   // page size in bytes, because buffer Wire is 32 bytes!!!, 2-bytes address & 30-Data //TODO: Test with 64 and 128
     uint8_t  _twiFreq;          // Frequency in 10th kHz like (1, 4, 10)
-    //uint8_t  _nAddrBytes;       // number of address bytes (1 or 2)
-    //uint8_t  _csShift;          // number of bits to shift address for chip select bits in control byte
 
 public:
-    //// EEPROM size in kilobits.
-    //enum eeprom_size_t {
-    //    kbits_2 = 2,
-    //    kbits_4 = 4,
-    //    kbits_8 = 8,
-    //    kbits_16 = 16,
-    //    kbits_32 = 32,
-    //    kbits_64 = 64,
-    //    kbits_128 = 128,
-    //    kbits_256 = 256,
-    //    kbits_512 = 512,
-    //    kbits_1024 = 1024,
-    //    kbits_2048 = 2048
-    //};
-    //// I2C clock frequency
-    //enum twiFreq_t {
-    //    lowSpeed = 100000,     // 100kHz
-    //    highSpeed = 400000,     // 400kHz
-    //    maxSpeed = 1000000     // 1000kHz <- Doesn't work correctly :( for 24FC512 only!!!
-    //};
-    // EEPROM addressing error, returned by write() or read() if upper address bound is exceeded
-    static const uint8_t EEPROM_ADDR_ERR{ 9 };
-
     // CONSTRUCTOR
-    //LC_EXT_EEPROM(const eeprom_size_t& devCapacity, const uint8_t& qDevice); //, const uint8_t& pSize);
     LC_EXT_EEPROM(const eeprom_model_t& devModel, const uint8_t& qDevice); //, const uint8_t& pSize);
 
     uint8_t     begin();
 
     uint32_t getTotalCapacity();
-    uint8_t  getCtrlByte(const uint32_t& addr);
+    
 
     // Getters & Setters
     uint16_t getCapacity();
     void     setCapacity(uint16_t capacity);
-    uint8_t  getI2CAddress();
-    void     setI2CAddress(uint8_t addr);
+    //uint8_t  getI2CAddress();
+    //void     setI2CAddress(uint8_t addr);
     uint8_t  getQDevice();
     void     setQDevice(uint8_t qDev);
     uint8_t  getPageSize();
@@ -195,9 +154,10 @@ public:
 
 	~LC_EXT_EEPROM();
 
-private:
+private:    
     void    _getModelInfo(const eeprom_model_t& devModel);
     void    _setTotalCapacity();
+    uint8_t _getCtrlByte(const uint32_t& addr);
     void    _sendAddr(const uint32_t& addr);
     uint8_t _write(uint32_t addr, uint8_t* wData, uint16_t qBytes = 1);
 };

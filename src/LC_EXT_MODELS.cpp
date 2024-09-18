@@ -2,6 +2,21 @@
 
 void LC_EXT_EEPROM::_getModelInfo(const eeprom_model_t& devModel) {
     switch (devModel) {
+    case _24C00:
+        _devCapacity = 1;       // 128 bit
+        _twiFreq = 4;           // 400000
+        _pSize = 8;             // 8bit
+        break;
+    case _24AA00:
+        _devCapacity = 1;       // 128 bit
+        _twiFreq = 4;           // 400000
+        _pSize = 8;             // 8bit
+        break;
+    case _24LC00:
+        _devCapacity = 1;       // 128 bit
+        _twiFreq = 4;           // 400000
+        _pSize = 8;             // 8bit
+        break;
     case _24C01:
         _devCapacity = 1;       // 1kBit
         _twiFreq = 1;           // 100000

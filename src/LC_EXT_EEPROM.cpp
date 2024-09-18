@@ -25,6 +25,7 @@
 //    }*/
 //}
 
+// CONSTRUCTOR
 LC_EXT_EEPROM::LC_EXT_EEPROM(const eeprom_model_t& devModel, const uint8_t& qDevice)
 {    
     _getModelInfo(devModel);
@@ -32,301 +33,62 @@ LC_EXT_EEPROM::LC_EXT_EEPROM(const eeprom_model_t& devModel, const uint8_t& qDev
     _setTotalCapacity();
 }
 
-//void LC_EXT_EEPROM::_getModelInfo(const eeprom_model_t& devModel) {
-//    switch (devModel){
-//    case _24C01:
-//        _devCapacity = 1;
-//        _twiFreq = 1; // 100000
-//        _pSize = 8;
-//        break;
-//    case _24AA01:
-//        _devCapacity = 1;
-//        _twiFreq = 4; // 400000
-//        _pSize = 8;
-//        break;
-//    case _24LC01:
-//        _devCapacity = 1;
-//        _twiFreq = 4; // 400000
-//        _pSize = 8;
-//        break;
-//    case _24FC01:
-//        _devCapacity = 1;
-//        _twiFreq = 10; // 1000000
-//        _pSize = 8;
-//        break;
-//    case _24C02:
-//        _devCapacity = 2;
-//        _twiFreq = 1; // 100000
-//        _pSize = 8;
-//        break;
-//    case _24AA02:
-//        _devCapacity = 2;
-//        _twiFreq = 4; // 400000
-//        _pSize = 8;
-//        break;
-//    case _24LC02:
-//        _devCapacity = 2;
-//        _twiFreq = 4; // 400000
-//        _pSize = 8;
-//        break;
-//    case _24FC02:
-//        _devCapacity = 2;
-//        _twiFreq = 10; // 1000000
-//        _pSize = 8;
-//        break;
-//    case _24C04:
-//        _devCapacity = 4;
-//        _twiFreq = 1; // 100000
-//        _pSize = 16;
-//        break;
-//    case _24W04:
-//        _devCapacity = 4;
-//        _twiFreq = 1; // 100000
-//        _pSize = 16;
-//        break;
-//    case _24AA04:
-//        _devCapacity = 4;
-//        _twiFreq = 4; // 400000
-//        _pSize = 16;
-//        break;
-//    case _24LC04:
-//        _devCapacity = 4;
-//        _twiFreq = 4; // 400000
-//        _pSize = 16;
-//        break;
-//    case _24FC04:
-//        _devCapacity = 4;
-//        _twiFreq = 10; // 1000000
-//        _pSize = 16;
-//        break;
-//    case _24C08:
-//        _devCapacity = 8;
-//        _twiFreq = 10; // 1000000
-//        _pSize = 16;
-//        break;
-//    case _24AA08:
-//        _devCapacity = 8;
-//        _twiFreq = 4; // 400000
-//        _pSize = 16;
-//        break;
-//    case _24LC08:
-//        _devCapacity = 8;
-//        _twiFreq = 4; // 400000
-//        _pSize = 16;
-//        break;
-//    case _24FC08:
-//        _devCapacity = 8;
-//        _twiFreq = 10; // 1000000
-//        _pSize = 16;
-//        break;
-//    case _24C16:
-//        _devCapacity = 16;
-//        _twiFreq = 10; // 1000000
-//        _pSize = 16;
-//        break;
-//    case _24AA16:
-//        _devCapacity = 16;
-//        _twiFreq = 4; // 400000
-//        _pSize = 16;
-//        break;
-//    case _24LC16:
-//        _devCapacity = 16;
-//        _twiFreq = 4; // 400000
-//        _pSize = 16;
-//        break;
-//    case _24FC16:
-//        _devCapacity = 16;
-//        _twiFreq = 10; // 1000000
-//        _pSize = 16;
-//        break;
-//    case _24C32:
-//        _devCapacity = 32;
-//        _twiFreq = 4; // 400000
-//        _pSize = 8;
-//        break;
-//    case _24AA32:
-//        _devCapacity = 32;
-//        _twiFreq = 4; // 400000
-//        _pSize = 8;
-//        break;
-//    case _24LC32:
-//        _devCapacity = 32;
-//        _twiFreq = 4; // 400000
-//        _pSize = 32;
-//        break;
-//    case _24FC32:
-//        _devCapacity = 32;
-//        _twiFreq = 10; // 1000000
-//        _pSize = 8;
-//        break;
-//    case _24AA64:
-//        _devCapacity = 64;
-//        _twiFreq = 4; // 400000
-//        _pSize = 32;
-//        break;
-//    case _24LC64:
-//        _devCapacity = 64;
-//        _twiFreq = 4; // 400000
-//        _pSize = 32;
-//        break;
-//    case _24FC64:
-//        _devCapacity = 64;
-//        _twiFreq = 10; // 1000000
-//        _pSize = 32;
-//        break;
-//    case _24AA128:
-//        _devCapacity = 128;
-//        _twiFreq = 4; // 400000
-//        _pSize = 64;
-//        break;
-//    case _24LC128:
-//        _devCapacity = 128;
-//        _twiFreq = 4; // 400000
-//        _pSize = 64;
-//        break;
-//    case _24FC128:
-//        _devCapacity = 128;
-//        _twiFreq = 10; // 1000000
-//        _pSize = 64;
-//        break;
-//    case _24AA256:
-//        _devCapacity = 256;
-//        _twiFreq = 4; // 400000
-//        _pSize = 64;
-//        break;
-//    case _24LC256:
-//        _devCapacity = 256;
-//        _twiFreq = 4; // 400000
-//        _pSize = 64;
-//        break;
-//    case _24FC256:
-//        _devCapacity = 256;
-//        _twiFreq = 10; // 1000000
-//        _pSize = 64;
-//        break;
-//    case _24AA512:
-//        _devCapacity = 512;
-//        _twiFreq = 4; // 400000
-//        _pSize = 128;
-//        break;
-//    case _24LC512:
-//        _devCapacity = 512;
-//        _twiFreq = 4; // 400000
-//        _pSize = 128;
-//        break;
-//    case _24FC512:
-//        _devCapacity = 512;
-//        _twiFreq = 10; // 1000000
-//        _pSize = 128;
-//        break;
-//    case _24AA1025:
-//        _devCapacity = 1024;
-//        _twiFreq = 4; // 400000
-//        _pSize = 128;
-//        break;
-//    case _24LC1025:
-//        _devCapacity = 1024;
-//        _twiFreq = 4; // 400000
-//        _pSize = 128;
-//        break;
-//    case _24FC1025:
-//        _devCapacity = 1024;
-//        _twiFreq = 10; // 1000000
-//        _pSize = 128;
-//        break;
-//    default:
-//        break;
-//    }
-//}
-
-void LC_EXT_EEPROM::_setTotalCapacity() {
-    _totalCapacity = _qDevice * _devCapacity * 1024UL / 8;
-}
-
-uint16_t LC_EXT_EEPROM::getCapacity() {
-    return _devCapacity;
-}
+// Getters and Setters
+uint32_t LC_EXT_EEPROM::getTotalCapacity() { return _totalCapacity; }; // Returns total Capacity of memory in bytes
+uint16_t LC_EXT_EEPROM::getCapacity() { return _devCapacity; }
 void LC_EXT_EEPROM::setCapacity(uint16_t capacity) {
     _devCapacity = capacity;
     _setTotalCapacity();
 }
-
-uint8_t LC_EXT_EEPROM::getI2CAddress() {
-    return _eepromAddr;
-}
-void LC_EXT_EEPROM::setI2CAddress(uint8_t addr) {
-    _eepromAddr = addr;
-}
-
-uint8_t LC_EXT_EEPROM::getQDevice() {
-    return _qDevice;
-}
+//uint8_t LC_EXT_EEPROM::getI2CAddress() { return _eepromAddr; }
+//void LC_EXT_EEPROM::setI2CAddress(uint8_t addr) { _eepromAddr = addr; }
+uint8_t LC_EXT_EEPROM::getQDevice() { return _qDevice; }
 void LC_EXT_EEPROM::setQDevice(uint8_t qDev) {
     _qDevice = qDev;
     _setTotalCapacity();
 }
+uint8_t LC_EXT_EEPROM::getPageSize() { return _pSize; }
+void LC_EXT_EEPROM::setPageSize(uint8_t pSize) { _pSize = pSize; }
+uint8_t LC_EXT_EEPROM::getFrequency() { return _twiFreq; }
+void LC_EXT_EEPROM::setFrequency(uint8_t freq) { _twiFreq = freq; }
 
-uint8_t LC_EXT_EEPROM::getPageSize() {
-    return _pSize;
-}
-void LC_EXT_EEPROM::setPageSize(uint8_t pSize) {
-    _pSize = pSize;
-}
-
-uint8_t LC_EXT_EEPROM::getFrequency() {
-    return _twiFreq;
-}
-void LC_EXT_EEPROM::setFrequency(uint8_t freq) {
-    _twiFreq = freq;
-}
-
+// BEGINS transmission
 uint8_t LC_EXT_EEPROM::begin() {
     Wire.begin();
     Wire.setClock(_twiFreq * 100000);
-    Wire.beginTransmission(_eepromAddr);
+    Wire.beginTransmission(I2CADDR);
     _sendAddr(0x0000);
     return Wire.endTransmission();
 }
 
-// Returns total Capacity of memory
-uint32_t LC_EXT_EEPROM::getTotalCapacity() {
-    return _totalCapacity;
-};
-
-// Returns control byte of module by address, 0x50 / 0x51 /0x52 / ... /0x57
-uint8_t LC_EXT_EEPROM::getCtrlByte(const uint32_t& addr) {
-    return _eepromAddr | (uint8_t)((addr / 1024.0) / (_devCapacity / 8.0));
-};
-
 // Returns value of byte by address
 uint8_t LC_EXT_EEPROM::extReadByte(const uint32_t& addr) {
-    if (addr > _totalCapacity) return 0;
+    if (addr >= _totalCapacity) return 0;
 
-    uint8_t ctrlByte = getCtrlByte(addr);
+    uint8_t ctrlByte = _getCtrlByte(addr);
     Wire.beginTransmission(ctrlByte);                       // Control byte 0x50 .... 0x57
-    LC_EXT_EEPROM::_sendAddr(addr);
+    _sendAddr(addr);
     Wire.endTransmission();
 
     Wire.requestFrom((uint8_t)ctrlByte, (uint8_t)1);        // In Wire library present two functions, (uint8_t) for disable attentions
     return (Wire.available()) ? Wire.read() : 0;
-
 }
 
 // Returns Integer value (2 bytes) by address
 uint16_t LC_EXT_EEPROM::extReadInt(const uint32_t& addr) {
-    if (addr + 1 > _totalCapacity) return 0;
+    if (addr + 1 >= _totalCapacity) return 0;
     return extReadByte(addr) << 8 | extReadByte(addr + 1);
 }
 
 // Returns Longint value (4 bytes) by address
 uint32_t LC_EXT_EEPROM::extReadLong(const uint32_t& addr) {
-    if (addr + 3 > _totalCapacity) return 0;
+    if (addr + 3 >= _totalCapacity) return 0;
     return ((uint32_t)extReadByte(addr) << 24) | ((uint32_t)extReadByte(addr + 1) << 16) | ((uint32_t)extReadByte(addr + 2) << 8) | (uint32_t)extReadByte(addr + 3);
 }
 
 // Returns String value by address
 String LC_EXT_EEPROM::extReadStr(const uint32_t& addr, const uint16_t& quan) {
-    if ((addr + quan) > _totalCapacity) return "";
+    if ((addr + quan) >= _totalCapacity) return "";
 
     String res = "";
     for (uint16_t i = 0; i < quan; i++)
@@ -336,7 +98,7 @@ String LC_EXT_EEPROM::extReadStr(const uint32_t& addr, const uint16_t& quan) {
 
 // Returns Block data by address with unsigned byte array
 uint8_t LC_EXT_EEPROM::extReadBlock(const uint32_t& addr, const uint8_t& defVal, uint8_t* dst, const uint8_t& szDst) {
-    if ((addr + szDst) > _totalCapacity) return 1; // If we try read block outside, return error
+    if ((addr + szDst) >= _totalCapacity) return 1; // If we try read block outside, return error
     memset(dst, defVal, szDst);                 // Set destination array values by default values
     for (uint8_t i = 0; i < szDst; i++) {
         uint8_t bt = extReadByte(addr + i);
@@ -347,7 +109,7 @@ uint8_t LC_EXT_EEPROM::extReadBlock(const uint32_t& addr, const uint8_t& defVal,
 
 // Returns Block data by address with signed byte array
 uint8_t LC_EXT_EEPROM::extReadBlock(const uint32_t& addr, const int8_t& defVal, int8_t* dst, const uint8_t& szDst) {
-    if ((addr + szDst) > _totalCapacity) return 1; // If we try read block outside, return error
+    if ((addr + szDst) >= _totalCapacity) return 1; // If we try read block outside, return error
     memset(dst, defVal, szDst);                 // Set destination array values by default values
     for (uint8_t i = 0; i < szDst; i++) {
         uint8_t bt = extReadByte(addr + i);
@@ -359,7 +121,9 @@ uint8_t LC_EXT_EEPROM::extReadBlock(const uint32_t& addr, const int8_t& defVal, 
 
 // Write byte by address
 uint8_t LC_EXT_EEPROM::extWriteByte(const uint32_t& addr, const uint8_t& wByte) {
-    if (addr > _totalCapacity) return 1;
+    //Serial.print("addr: "); Serial.println(addr, HEX);
+    //Serial.print("_totalCapacity: "); Serial.println(_totalCapacity, HEX);
+    if (addr >= _totalCapacity) return 1;
     if (extReadByte(addr) != wByte) {
         uint8_t wData[1] = { wByte };
         _write(addr, wData, 1);
@@ -369,16 +133,17 @@ uint8_t LC_EXT_EEPROM::extWriteByte(const uint32_t& addr, const uint8_t& wByte) 
 
 // Write Integer value by address
 uint8_t LC_EXT_EEPROM::extWriteInt(const uint32_t& addr, const uint16_t& wInt) {
-    if ((addr + 1) > _totalCapacity) return 1;
+    if ((addr + 1) >= _totalCapacity) return 1;
     if (extReadInt(addr) != wInt) {
         uint8_t wData[2] = { wInt >> 8, (uint8_t)wInt };
         _write(addr, wData, 2);
     }
+    return 0;
 }
 
 // Write Longint value by address
 uint8_t LC_EXT_EEPROM::extWriteLong(const uint32_t& addr, const uint32_t& wLong) {
-    if ((addr + 3) > _totalCapacity) return 1;
+    if ((addr + 3) >= _totalCapacity) return 1;
     if (extReadLong(addr) != wLong) {
         uint8_t wData[4] = { (uint8_t)(wLong >> 24), (uint8_t)(wLong >> 16), (uint8_t)(wLong >> 8), (uint8_t)wLong };
         _write(addr, wData, 4);
@@ -388,7 +153,7 @@ uint8_t LC_EXT_EEPROM::extWriteLong(const uint32_t& addr, const uint32_t& wLong)
 
 // Write string by address
 uint8_t LC_EXT_EEPROM::extWriteStr(const uint32_t& addr, const String& sendStr){   // TODO: ATTATION! First of all you need to check sendStr.length(), probably it returns address of variable but not length of strings content
-    if ((addr + sendStr.length()) > _totalCapacity) return 1;
+    if ((addr + sendStr.length()) >= _totalCapacity) return 1;
     if (extReadStr(addr, sendStr.length()) != sendStr) {
         uint8_t wData[sendStr.length() + 1];                // Maybe need set last element of array, like 0x00, lot end of char array
         sendStr.toCharArray(wData, sizeof(wData));
@@ -399,14 +164,14 @@ uint8_t LC_EXT_EEPROM::extWriteStr(const uint32_t& addr, const String& sendStr){
 
 // Fill block memory by default value
 uint8_t LC_EXT_EEPROM::extFillBlock(const uint32_t& addr, const uint32_t& cnt, const uint8_t& bt) {
-    if ((addr + cnt) > _totalCapacity) return 1;
+    if ((addr + cnt) >= _totalCapacity) return 1;
     for (uint32_t i = 0; i < cnt; i++) extWriteByte(addr + i, bt);
     return 0;
 }
 
 // Write Block data by address
 uint8_t LC_EXT_EEPROM::extWriteBlock(const uint32_t& addr, const uint8_t& defVal, const int8_t* src, const uint8_t& szSrc) {
-    if ((addr + szSrc) > _totalCapacity) return 1;
+    if ((addr + szSrc) >= _totalCapacity) return 1;
     extFillBlock(addr, szSrc, defVal);      // Clear valu EEPROM by default value
     for (uint8_t i = 0; i < szSrc; i++)
         if (((defVal == 0xFF) && (src[i] == INT8_MIN)) || ((defVal == 0x00) && (src[i] == 0x00))) break;
@@ -436,7 +201,7 @@ void LC_EXT_EEPROM::extShow(const uint32_t& addrFrom, const uint32_t& addrTo, co
     Serial.println();
     for (uint32_t j = (addrFrom / quan); j < (addrTo / quan + 1); j++) {
         String cByte = F("0x");
-        cByte += String(getCtrlByte(j * quan), HEX) + ' ';
+        cByte += String(_getCtrlByte(j * quan), HEX) + ' ';
         String tSt = LC_EEPROM::_preFix(String(j * quan, HEX), 8, '0') + ' ';
         tSt.toUpperCase();
         tSt = cByte + tSt;
@@ -455,24 +220,34 @@ LC_EXT_EEPROM::~LC_EXT_EEPROM() {}
 
 // ------------------------------------------- PRIVATE FUNCTIONS -------------------------------------------------------
 
+void LC_EXT_EEPROM::_setTotalCapacity() {
+    _totalCapacity = _qDevice * _devCapacity * 1024UL / 8;
+}
+
+// Returns control byte of module by address, 0x50 / 0x51 /0x52 / ... /0x57
+uint8_t LC_EXT_EEPROM::_getCtrlByte(const uint32_t& addr) {
+    return I2CADDR | (uint8_t)((addr / 1024.0) / (_devCapacity / 8.0));
+};
+
 void LC_EXT_EEPROM::_sendAddr(const uint32_t& addr) {
-    uint8_t nAddrBytes = _devCapacity > kbits_16 ? 2 : 1;               // For module with 1024bit & 2048 may be 3 bytes for adress
-    if (nAddrBytes == 2) Wire.write(static_cast<uint8_t>(addr >> 8));   // write high address byte
-    Wire.write(static_cast<uint8_t>(addr));                             // write low  address byte
+    if (_devCapacity > 1024) Wire.write(static_cast<uint8_t>(addr >> 16)); // write very high address byte
+    if (_devCapacity > 16)   Wire.write(static_cast<uint8_t>(addr >> 8));  // write high address byte
+    Wire.write(static_cast<uint8_t>(addr));                                // write low  address byte
 }
 
 uint8_t LC_EXT_EEPROM::_write(uint32_t addr, uint8_t* wData, uint16_t qBytes) {
-    if (addr + qBytes > _totalCapacity) return EEPROM_ADDR_ERR;
-
     uint8_t txState = 0;
+    
+    if (addr + qBytes > _totalCapacity) return txState;
+        
     while (qBytes > 0) {
         uint16_t nPage = _pSize - (addr & (_pSize - 1));                // Part of page size for write data from address
         uint16_t nWrite = (qBytes < nPage) ? qBytes : nPage;            // Quantity of Bytes that you cat write to page
         //uint8_t  ctrlByte = _eepromAddr | (uint8_t)((addr / 1024.0) / (_devCapacity / 8.0));
-        uint8_t  ctrlByte = getCtrlByte(addr);
+        uint8_t  ctrlByte = _getCtrlByte(addr);
 
         Wire.beginTransmission(ctrlByte);
-        LC_EXT_EEPROM::_sendAddr(addr);
+        _sendAddr(addr);
         Wire.write(wData, nWrite);
         txState = Wire.endTransmission();
         if (txState != 0) return txState;
@@ -481,20 +256,18 @@ uint8_t LC_EXT_EEPROM::_write(uint32_t addr, uint8_t* wData, uint16_t qBytes) {
         for (uint8_t i = 0; i < 10; i++) {
             delayMicroseconds(500);
             Wire.beginTransmission(ctrlByte);
-            LC_EXT_EEPROM::_sendAddr(0);
+            _sendAddr(0);
             txState = Wire.endTransmission();
             if (txState == 0) break;
         }
         if (txState != 0) return txState;
 
         addr += nWrite;         // increment the EEPROM address
-        wData += nWrite;         // increment the input data pointer
-        qBytes -= nWrite;         // decrement the number of bytes left to write
+        wData += nWrite;        // increment the input data pointer
+        qBytes -= nWrite;       // decrement the number of bytes left to write
     };
     return txState;
 }
-
-
 
 /*template <typename T>
 T LC_EEPROM::read(const uint32_t& addr, typeof T){
