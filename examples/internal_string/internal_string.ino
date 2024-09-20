@@ -4,7 +4,7 @@
 LC_EEPROM eeprom;
 
 void setup(){
-  Serial.begin(9600); delay(200);               // Delay for init EEPROM memory
+  Serial.begin(9600); delay(500);               // Delay for init EEPROM memory
   Serial.println();
 
   //eeprom.intFillBlock(ADDR, 0xFF, 0xFF);      // Clear memory

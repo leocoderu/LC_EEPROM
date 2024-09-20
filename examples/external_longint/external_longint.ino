@@ -9,28 +9,28 @@ void setup(){
 
   eeprom.begin();                               // Start working with eeprom
 
-  uint16_t n = 0x0ABC;                          // Default data for read/write test
-  uint8_t res = 0;                              // Variable for Result
-  uint16_t gVal = 0;                            // Variable for getting Byte
-  uint16_t def = eeprom.extReadInt(ADDR);       // Save default value
+  uint32_t n = 0xABCD0ABC;                      // Default data for read/write test
+  uint8_t  res = 0;                             // Variable for Result
+  uint32_t gVal = 0;                            // Variable for getting Byte
+  uint32_t def = eeprom.extReadLong(ADDR);      // Save default value
 
   Serial.print("New value for write \t0x"); Serial.println(n, HEX);
   Serial.print("EEPROM value now \t0x"); Serial.println(def, HEX);
 
   // Write default data and return result of operation 
-  res = eeprom.extWriteInt(ADDR, n);   
+  res = eeprom.extWriteLong(ADDR, n);   
   Serial.print("Result operation write: 0x"); Serial.print(n, HEX); Serial.println(res == 0 ? "\tsuccess" : "\terror");
 
   // Get value by address
-  gVal = eeprom.extReadInt(ADDR);     
+  gVal = eeprom.extReadLong(ADDR);     
   Serial.print("EEPROM value now \t0x"); Serial.println(gVal, HEX);
 
   // Return value to address
-  res = eeprom.extWriteInt(ADDR, def); 
+  res = eeprom.extWriteLong(ADDR, def); 
   Serial.print("Result operation write: 0x"); Serial.print(def, HEX);  Serial.println(res == 0 ? "\tsuccess" : "\terror");
 
   // Get value by address
-  gVal = eeprom.extReadInt(ADDR);     
+  gVal = eeprom.extReadLong(ADDR);     
   Serial.print("EEPROM value now \t0x"); Serial.println(gVal, HEX);
 }
 
