@@ -167,7 +167,7 @@ uint8_t LC_EEPROM::intWriteBlock(const uint32_t& addr, const char* src, const ui
 }
 
 // ---------------------------------------------- Show EEPROM ---------------------------------------------------------
-void LC_EEPROM::intShow(const uint32_t& addrFrom, const uint32_t& addrTo, const uint8_t& quan = 32) {
+void LC_EEPROM::intShow(const uint32_t& addrFrom, const uint32_t& addrTo, const uint8_t& quan) {
     Serial.println("Internal EEPROM memory...");
 
     // Header of table
@@ -201,9 +201,9 @@ String LC_EEPROM::_preFix(String str, uint8_t quan, char chr = '0') {
 }
 
 // ------------------------------------------- PRIVATE FUNCTIONS -------------------------------------------------------
-bool LC_EEPROM::_cmpBuffers(char* src, const uint8_t& szSrc, char* dst, const uint8_t& szDst) {
-    if (szSrc != szDst) return false;
-    for (uint8_t i = 0; i < szSrc; i++)
-        if (src[i] != dst[i]) return false;
-    return true;
-}
+//bool LC_EEPROM::_cmpBuffers(const char* src, const uint8_t& szSrc, const char* dst, const uint8_t& szDst) {
+//    if (szSrc != szDst) return false;
+//    for (uint8_t i = 0; i < szSrc; i++)
+//        if (src[i] != dst[i]) return false;
+//    return true;
+//}

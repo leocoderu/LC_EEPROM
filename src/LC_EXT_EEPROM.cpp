@@ -136,7 +136,7 @@ uint8_t LC_EXT_EEPROM::extWriteByte(const uint32_t& addr, const uint8_t& wByte) 
 uint8_t LC_EXT_EEPROM::extWriteInt(const uint32_t& addr, const uint16_t& wInt) {
     if ((addr + 1) >= _totalCapacity) return 1;
     if (extReadInt(addr) != wInt) {
-        uint8_t wData[2] = { wInt >> 8, (uint8_t)wInt };
+        uint8_t wData[2] = { (uint8_t)(wInt >> 8), (uint8_t)wInt };
         _write(addr, wData, 2);
     }
     return 0;
@@ -157,7 +157,11 @@ uint8_t LC_EXT_EEPROM::extWriteStr(const uint32_t& addr, const String& sendStr){
     if ((addr + sendStr.length()) >= _totalCapacity) return 1;
     if (extReadStr(addr, sendStr.length()) != sendStr) {
         uint8_t wData[sendStr.length() + 1];                // Maybe need set last element of array, like 0x00, lot end of char array
-        sendStr.toCharArray(wData, sizeof(wData));
+        //sendStr.toCharArray(wData, sizeof(wData));
+        for (uint8_t i = 0; i < sendStr.length(); i++) {
+            wData[i] = (uint8_t)sendStr[i];
+        };
+        wData[sendStr.length()] = '\0';
         _write(addr, wData, sendStr.length());
     }
     return 0;

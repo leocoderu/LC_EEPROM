@@ -97,10 +97,17 @@ enum eeprom_model_t {
         ~LC_EEPROM();
 
     protected:
-        String _preFix(String str, uint8_t quan, char chr);
+        String      _preFix(String str, uint8_t quan, char chr);
 
     private:
-        bool        _cmpBuffers(char* src, const uint8_t& szSrc, char* dst, const uint8_t& szDst);
+        //bool        _cmpBuffers(const char* src, const uint8_t& szSrc, const char* dst, const uint8_t& szDst);
+        template <typename T>
+        bool        _cmpBuffers(const T* src, const uint8_t& szSrc, const T* dst, const uint8_t& szDst) {
+            if (szSrc != szDst) return false;
+            for (uint8_t i = 0; i < szSrc; i++)
+                if (src[i] != dst[i]) return false;
+            return true;
+        }
     };
 
     class LC_EXT_EEPROM : public LC_EEPROM {
@@ -170,25 +177,30 @@ enum eeprom_model_t {
         }
 
         template <typename T>
-        uint8_t extWrite(const uint32_t& addr, const T& src) {
-            uint32_t nAddr = addr;
+        uint8_t extWrite(uint32_t addr, const T& src) {
+            //uint32_t nAddr = addr;
 
             uint8_t  state = 0;
             uint16_t size = sizeof(src);
-            if ((nAddr + size - 1) >= _totalCapacity) return 1;
+            if ((addr + size - 1) >= _totalCapacity) return 1;
 
             while (size > 0) {
-                // uint16_t nPage = _pSize - (addr & (_pSize - 1));                // Part of page size for write data from address
                 uint16_t nWrite = (size < _pSize) ? size : _pSize;
-                uint8_t ctrlByte = _getCtrlByte(nAddr);
+                uint8_t ctrlByte = _getCtrlByte(addr);
 
                 Wire.beginTransmission(ctrlByte);
-                _sendAddr(nAddr);
-                if ((typename(src) == typename(uint8_t)) || (typename(src) == typename(String))) { Wire.write(src); }  // Write byte
-                else {
-                    //uint8_t buff[nWrite] = {};
-                    Wire.write(src, nWrite);    // Write buffer
-                }
+                _sendAddr(addr);
+                Wire.write(src);
+
+                /*if (typeid(src) == typeid(uint8_t)) {
+                    Serial.println("Byte");
+                }*/
+
+                //if ((typename(src) == typename(uint8_t)) || (typename(src) == typename(String))) { Wire.write(src); }  // Write byte
+                //else {
+                //    //uint8_t buff[nWrite] = {};
+                //    Wire.write(src, nWrite);    // Write buffer
+                //}
                 state = Wire.endTransmission();
                 if (state != 0) return state;
 
@@ -202,8 +214,7 @@ enum eeprom_model_t {
                 }
                 if (state != 0) return state;
 
-                nAddr += nWrite;
-                // wData += nWrite;        // increment the input data pointer
+                addr += nWrite;
                 size -= nWrite;
             }
             return 0;
