@@ -2,60 +2,39 @@
 
 //using namespace LC_EXT_EEPROM;
 
-//LC_EXT_EEPROM::LC_EXT_EEPROM(const eeprom_size_t& devCapacity, const uint8_t& qDevice){; //, const uint8_t& pSize);
-//    _devCapacity = devCapacity;
-//    //_eepromAddr = eeAddr;
-//    _qDevice = qDevice;
-//    //_pSize = pSize;
-//    _totalCapacity = _qDevice * _devCapacity * 1024UL / 8;
-//    //_nAddrBytes = _devCapacity > kbits_16 ? 2 : 1;              // two address bytes needed for eeproms > 16kbits
-//
-//    // determine the bitshift needed to isolate the chip select bits from
-//    // the address to put into the control byte
-//   /* uint16_t kb = _devCapacity;
-//    if (kb <= kbits_16) _csShift = 8;
-//    else if (kb >= kbits_512) _csShift = 16;
-//    else {
-//        kb >>= 6;
-//        _csShift = 12;
-//        while (kb >= 1) {
-//            ++_csShift;
-//            kb >>= 1;
-//        }
-//    }*/
-//}
-
 // CONSTRUCTOR
-LC_EXT_EEPROM::LC_EXT_EEPROM(const eeprom_model_t& devModel, const uint8_t& qDevice)
+LC_EXT_EEPROM::LC_EXT_EEPROM(const eeprom_model_t& devModel)
 {    
     _getModelInfo(devModel);
-    _qDevice = qDevice;
-    _setTotalCapacity();
+
+    if (_pSize > 30) _pSize = 30; // Rewrite Page Size, becouse Wire buffer has limit in 32 byte, 2 bytes for address and 30 bytes for data.
 }
 
 // Getters and Setters
 uint32_t LC_EXT_EEPROM::getTotalCapacity() { return _totalCapacity; }; // Returns total Capacity of memory in bytes
 uint16_t LC_EXT_EEPROM::getCapacity() { return _devCapacity; }
 void LC_EXT_EEPROM::setCapacity(uint16_t capacity) {
-    _devCapacity = capacity;
+    this->_devCapacity = capacity;
     _setTotalCapacity();
 }
-//uint8_t LC_EXT_EEPROM::getI2CAddress() { return _eepromAddr; }
-//void LC_EXT_EEPROM::setI2CAddress(uint8_t addr) { _eepromAddr = addr; }
-uint8_t LC_EXT_EEPROM::getQDevice() { return _qDevice; }
-void LC_EXT_EEPROM::setQDevice(uint8_t qDev) {
-    _qDevice = qDev;
+uint8_t LC_EXT_EEPROM::getQDevices() { return _qDevice; }
+void    LC_EXT_EEPROM::setQDevices(uint8_t qDevices) { 
+    this->_qDevice = qDevices;
     _setTotalCapacity();
-}
+};
 uint8_t LC_EXT_EEPROM::getPageSize() { return _pSize; }
-void LC_EXT_EEPROM::setPageSize(uint8_t pSize) { _pSize = pSize; }
+void LC_EXT_EEPROM::setPageSize(uint8_t pSize) { this->_pSize = pSize; }
 uint8_t LC_EXT_EEPROM::getFrequency() { return _twiFreq; }
-void LC_EXT_EEPROM::setFrequency(uint8_t freq) { _twiFreq = freq; }
+void LC_EXT_EEPROM::setFrequency(uint8_t freq) { this->_twiFreq = freq; }
 
 // BEGINS transmission
 uint8_t LC_EXT_EEPROM::begin() {
     Wire.begin();
     Wire.setClock(_twiFreq * 100000);
+
+    this->_qDevice = _checkQDevices();
+    _setTotalCapacity();
+
     Wire.beginTransmission(I2CADDR);
     _sendAddr(0x0000);
     return Wire.endTransmission();
@@ -87,8 +66,30 @@ uint32_t LC_EXT_EEPROM::extReadLong(const uint32_t& addr) {
 }
 
 // Returns String value by address
+//String LC_EXT_EEPROM::extReadStr(const uint32_t& addr, const uint16_t& quan) {
+//    if ((addr + quan) >= _totalCapacity) return "";
+//
+//    String res = "";
+//    for (uint16_t i = 0; i < quan; i++)
+//        res += char(extReadByte(addr + i));
+//    return res;
+//}
+
 String LC_EXT_EEPROM::extReadStr(const uint32_t& addr, const uint16_t& quan) {
     if ((addr + quan) >= _totalCapacity) return "";
+
+    //for (uint8_t j = 0; j <= (uint8_t)(quan / _pSize); j++) {   // Loop by pages
+    //    uint8_t ctrlByte = _getCtrlByte(addr + (j * _pSize));
+    //    Wire.beginTransmission(ctrlByte);                       // Control byte 0x50 .... 0x57
+    //    _sendAddr(addr + (j * _pSize));
+    //    Wire.endTransmission();
+
+    //    Wire.requestFrom((uint8_t)ctrlByte, (uint8_t)1);        // In Wire library present two functions, (uint8_t) for disable attentions
+    //    return (Wire.available()) ? Wire.read() : 0;
+
+    //}
+
+
 
     String res = "";
     for (uint16_t i = 0; i < quan; i++)
@@ -152,7 +153,7 @@ uint8_t LC_EXT_EEPROM::extWriteLong(const uint32_t& addr, const uint32_t& wLong)
 }
 
 // Write string by address
-uint8_t LC_EXT_EEPROM::extWriteStr(const uint32_t& addr, const String& sendStr){   // TODO: ATTATION! First of all you need to check sendStr.length(), probably it returns address of variable but not length of strings content
+uint8_t LC_EXT_EEPROM::extWriteStr(const uint32_t& addr, const String& sendStr){  
     if ((addr + sendStr.length()) >= _totalCapacity) return 1;
     if (extReadStr(addr, sendStr.length()) != sendStr) {
         uint8_t wData[sendStr.length() + 1];                // Maybe need set last element of array, like 0x00, lot end of char array
@@ -220,6 +221,17 @@ LC_EXT_EEPROM::~LC_EXT_EEPROM() {}
 
 // ------------------------------------------- PRIVATE FUNCTIONS -------------------------------------------------------
 
+uint8_t LC_EXT_EEPROM::_checkQDevices() {
+    uint8_t n = 0;
+    for (uint8_t i = 0; i < 8; i++) {
+        Wire.beginTransmission(I2CADDR + i);
+        if (Wire.endTransmission() > 0) break;
+        n++;
+    }
+    return n;
+}
+
+
 void LC_EXT_EEPROM::_setTotalCapacity() {
     _totalCapacity = _qDevice * _devCapacity * 1024UL / 8;
 }
@@ -235,15 +247,41 @@ void LC_EXT_EEPROM::_sendAddr(const uint32_t& addr) {
     Wire.write(static_cast<uint8_t>(addr));                                // write low  address byte
 }
 
+uint8_t LC_EXT_EEPROM::_readWire(uint32_t addr, uint8_t* wData, uint16_t qBytes) {
+    uint8_t ctrlByte = _getCtrlByte(addr);                  // Control byte 0x50 .... 0x57
+    
+    Wire.beginTransmission(ctrlByte);                       
+    _sendAddr(addr);
+    Wire.endTransmission();
+
+    Wire.requestFrom((uint8_t) ctrlByte, (uint16_t) qBytes); // In Wire library present two functions, (uint8_t) for disable attentions
+
+    uint16_t cnt = 0;
+    while(cnt < qBytes) {
+        if (!Wire.available()) break;                       // Emergency exit from loop, if Wire is not available
+        wData[cnt] = Wire.read();                           // While write data is available, we are transfer it to wData buffer
+        cnt++;
+    }
+
+    return cnt; // Returns the number of bytes received, or zero if nothing is received. Zero can be perceived as an error.
+}
+
+// It's a new version of method _write
+uint8_t LC_EXT_EEPROM::_writeWire(uint32_t addr, uint8_t* wData, uint16_t qBytes) {
+}
+
+
+// TODO: Need to check write when qBytes more than 128 bites? _pSize = 128
 uint8_t LC_EXT_EEPROM::_write(uint32_t addr, uint8_t* wData, uint16_t qBytes) {
     uint8_t txState = 0;
+
+    
     
     if (addr + qBytes > _totalCapacity) return txState;
         
     while (qBytes > 0) {
         uint16_t nPage = _pSize - (addr & (_pSize - 1));                // Part of page size for write data from address
         uint16_t nWrite = (qBytes < nPage) ? qBytes : nPage;            // Quantity of Bytes that you cat write to page
-        //uint8_t  ctrlByte = _eepromAddr | (uint8_t)((addr / 1024.0) / (_devCapacity / 8.0));
         uint8_t  ctrlByte = _getCtrlByte(addr);
 
         Wire.beginTransmission(ctrlByte);

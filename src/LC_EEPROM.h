@@ -71,95 +71,158 @@ enum eeprom_model_t {
     _24FC1025    // 1024kBit    1000kHz     128    
 };
 
-class LC_EEPROM{
+    class LC_EEPROM {
 
-public:
-	LC_EEPROM();
+    public:
+        LC_EEPROM();
 
-    // Function for Internal EEPROM memory
-    uint8_t     intReadByte(const uint32_t& addr);
-    uint16_t    intReadInt(const uint32_t& addr);
-    uint32_t    intReadLong(const uint32_t& addr);
-    String      intReadStr(const uint32_t& addr, const uint16_t& quan);
-    uint8_t     intReadBlock(const uint32_t& addr, uint8_t* dst, const uint8_t& szDst);
-    uint8_t     intReadBlock(const uint32_t& addr, char* dst, const uint8_t& szDst);
+        // Function for Internal EEPROM memory
+        uint8_t     intReadByte(const uint32_t& addr);
+        uint16_t    intReadInt(const uint32_t& addr);
+        uint32_t    intReadLong(const uint32_t& addr);
+        String      intReadStr(const uint32_t& addr, const uint16_t& quan);
+        uint8_t     intReadBlock(const uint32_t& addr, uint8_t* dst, const uint8_t& szDst);
+        uint8_t     intReadBlock(const uint32_t& addr, char* dst, const uint8_t& szDst);
 
-    uint8_t     intWriteByte(const uint32_t& addr, const uint8_t& wByte);
-    uint8_t     intWriteInt(const uint32_t& addr, const uint16_t& wInt);
-    uint8_t     intWriteLong(const uint32_t& addr, const uint32_t& wLong);
-    uint8_t     intWriteStr(const uint32_t& addr, const String& sendStr);
-    uint8_t     intFillBlock(const uint32_t& addr, const uint32_t& cnt, const uint8_t& bt);
-    uint8_t     intWriteBlock(const uint32_t& addr, const uint8_t* src, const uint8_t& szSrc);
-    uint8_t     intWriteBlock(const uint32_t& addr, const char* src, const uint8_t& szSrc);
+        uint8_t     intWriteByte(const uint32_t& addr, const uint8_t& wByte);
+        uint8_t     intWriteInt(const uint32_t& addr, const uint16_t& wInt);
+        uint8_t     intWriteLong(const uint32_t& addr, const uint32_t& wLong);
+        uint8_t     intWriteStr(const uint32_t& addr, const String& sendStr);
+        uint8_t     intFillBlock(const uint32_t& addr, const uint32_t& cnt, const uint8_t& bt);
+        uint8_t     intWriteBlock(const uint32_t& addr, const uint8_t* src, const uint8_t& szSrc);
+        uint8_t     intWriteBlock(const uint32_t& addr, const char* src, const uint8_t& szSrc);
 
-    void        intShow(const uint32_t& addrFrom = 0x0000, const uint32_t& addrTo = EEPROM.length() - 1, const uint8_t& quan = 32);
+        void        intShow(const uint32_t& addrFrom = 0x0000, const uint32_t& addrTo = EEPROM.length() - 1, const uint8_t& quan = 32);
 
-	~LC_EEPROM();
+        ~LC_EEPROM();
 
-protected:
-    String _preFix(String str, uint8_t quan, char chr);
+    protected:
+        String _preFix(String str, uint8_t quan, char chr);
 
-private:
-    bool        _cmpBuffers(char* src, const uint8_t& szSrc, char* dst, const uint8_t& szDst);
-};
+    private:
+        bool        _cmpBuffers(char* src, const uint8_t& szSrc, char* dst, const uint8_t& szDst);
+    };
+
+    class LC_EXT_EEPROM : public LC_EEPROM {
+
+        uint32_t _totalCapacity;    // capacity of all EEPROM devices on the bus, in bytes
+        uint16_t _devCapacity;      // capacity of one EEPROM device, in kbits
+        //uint8_t  _eepromAddr = 0x50;// eeprom i2c address
+        uint8_t  _qDevice;          // number of devices on the bus
+        uint8_t  _pSize; // = 30;   // page size in bytes, because buffer Wire is 32 bytes!!!, 2-bytes address & 30-Data //TODO: Test with 64 and 128
+        uint8_t  _twiFreq;          // Frequency in 10th kHz like (1, 4, 10)
+
+    public:
+        // CONSTRUCTOR
+        LC_EXT_EEPROM(const eeprom_model_t& devModel); //, const uint8_t& pSize);
+
+        uint8_t     begin();
+
+        uint32_t getTotalCapacity();
 
 
-class LC_EXT_EEPROM : public LC_EEPROM {
+        // Getters & Setters
+        uint16_t getCapacity();
+        void     setCapacity(uint16_t capacity);
+        uint8_t  getQDevices();
+        void     setQDevices(uint8_t qDevices);
+        uint8_t  getPageSize();
+        void     setPageSize(uint8_t pSize);
+        uint8_t  getFrequency();
+        void     setFrequency(uint8_t freq);
 
-    uint32_t _totalCapacity;    // capacity of all EEPROM devices on the bus, in bytes
-    uint16_t _devCapacity;      // capacity of one EEPROM device, in kbits
-    //uint8_t  _eepromAddr = 0x50;// eeprom i2c address
-    uint8_t  _qDevice;          // number of devices on the bus
-    uint8_t  _pSize; // = 30;   // page size in bytes, because buffer Wire is 32 bytes!!!, 2-bytes address & 30-Data //TODO: Test with 64 and 128
-    uint8_t  _twiFreq;          // Frequency in 10th kHz like (1, 4, 10)
+        // Function for External EEPROM memory
+        uint8_t  extReadByte(const uint32_t& addr);
+        uint16_t extReadInt(const uint32_t& addr);
+        uint32_t extReadLong(const uint32_t& addr);
+        String   extReadStr(const uint32_t& addr, const uint16_t& quan);
+        uint8_t  extReadBlock(const uint32_t& addr, const uint8_t& defVal, uint8_t* dst, const uint8_t& szDst);
+        uint8_t  extReadBlock(const uint32_t& addr, const int8_t& defVal, int8_t* dst, const uint8_t& szDst);
 
-public:
-    // CONSTRUCTOR
-    LC_EXT_EEPROM(const eeprom_model_t& devModel, const uint8_t& qDevice); //, const uint8_t& pSize);
+        uint8_t  extWriteByte(const uint32_t& addr, const uint8_t& wByte);
+        uint8_t  extWriteInt(const uint32_t& addr, const uint16_t& wInt);
+        uint8_t  extWriteLong(const uint32_t& addr, const uint32_t& wDouble);
+        uint8_t  extWriteStr(const uint32_t& addr, const String& sendStr);
+        uint8_t  extFillBlock(const uint32_t& addr, const uint32_t& cnt, const uint8_t& bt);
+        uint8_t  extWriteBlock(const uint32_t& addr, const uint8_t& defVal, const int8_t* src, const uint8_t& szSrc);
+        //uint8_t  extWriteBlock(const uint32_t& addr, const int8_t& defVal, const int8_t* src, const uint8_t& szSrc);
 
-    uint8_t     begin();
+        template <typename T>
+        uint8_t extRead(const uint32_t& addr, T& dst){
+            Serial.print("extRead addr: 0x"); Serial.println(addr, HEX);
+            Serial.print("extRead dst:  "); Serial.println(sizeof(dst), DEC);
 
-    uint32_t getTotalCapacity();
-    
+            uint8_t rxState = 0;
+            uint16_t size = sizeof(dst);
+            if ((addr + size - 1) >= _totalCapacity) return 1;
 
-    // Getters & Setters
-    uint16_t getCapacity();
-    void     setCapacity(uint16_t capacity);
-    //uint8_t  getI2CAddress();
-    //void     setI2CAddress(uint8_t addr);
-    uint8_t  getQDevice();
-    void     setQDevice(uint8_t qDev);
-    uint8_t  getPageSize();
-    void     setPageSize(uint8_t pSize);
-    uint8_t  getFrequency();
-    void     setFrequency(uint8_t freq);
+            uint8_t ctrlByte = _getCtrlByte(addr);
 
-    // Function for External EEPROM memory
-    uint8_t  extReadByte(const uint32_t& addr);
-    uint16_t extReadInt(const uint32_t& addr);
-    uint32_t extReadLong(const uint32_t& addr);
-    String   extReadStr(const uint32_t& addr, const uint16_t& quan);
-    uint8_t  extReadBlock(const uint32_t& addr, const uint8_t& defVal, uint8_t* dst, const uint8_t& szDst);
-    uint8_t  extReadBlock(const uint32_t& addr, const int8_t& defVal, int8_t* dst, const uint8_t& szDst);    
+            Wire.beginTransmission(ctrlByte);
+            _sendAddr(addr);
+            rxState = Wire.endTransmission();
+            if (rxState != 0) return rxState;
 
-    uint8_t  extWriteByte(const uint32_t& addr, const uint8_t& wByte);
-    uint8_t  extWriteInt(const uint32_t& addr, const uint16_t& wInt);
-    uint8_t  extWriteLong(const uint32_t& addr, const uint32_t& wDouble);
-    uint8_t  extWriteStr(const uint32_t& addr, const String& sendStr);
-    uint8_t  extFillBlock(const uint32_t& addr, const uint32_t& cnt, const uint8_t& bt);
-    uint8_t  extWriteBlock(const uint32_t& addr, const uint8_t& defVal, const int8_t* src, const uint8_t& szSrc);
-    //uint8_t  extWriteBlock(const uint32_t& addr, const int8_t& defVal, const int8_t* src, const uint8_t& szSrc);
+            Wire.requestFrom((uint8_t)ctrlByte, (uint16_t)size);
+            if (Wire.available()) dst = Wire.read();
 
-    void     extShow(const uint32_t& addrFrom = 0x0000, const uint32_t& addrTo = 0xFFFF, const uint8_t& quan = 32);  //TODO: addrTo FFFF, for 512 kbit only!!!! Not for module with memory less!!! ATTANTION!
+            return 0;
+        }
 
-	~LC_EXT_EEPROM();
+        template <typename T>
+        uint8_t extWrite(const uint32_t& addr, const T& src) {
+            uint32_t nAddr = addr;
 
-private:    
-    void    _getModelInfo(const eeprom_model_t& devModel);
-    void    _setTotalCapacity();
-    uint8_t _getCtrlByte(const uint32_t& addr);
-    void    _sendAddr(const uint32_t& addr);
-    uint8_t _write(uint32_t addr, uint8_t* wData, uint16_t qBytes = 1);
-};
+            uint8_t  state = 0;
+            uint16_t size = sizeof(src);
+            if ((nAddr + size - 1) >= _totalCapacity) return 1;
+
+            while (size > 0) {
+                // uint16_t nPage = _pSize - (addr & (_pSize - 1));                // Part of page size for write data from address
+                uint16_t nWrite = (size < _pSize) ? size : _pSize;
+                uint8_t ctrlByte = _getCtrlByte(nAddr);
+
+                Wire.beginTransmission(ctrlByte);
+                _sendAddr(nAddr);
+                if ((typename(src) == typename(uint8_t)) || (typename(src) == typename(String))) { Wire.write(src); }  // Write byte
+                else {
+                    //uint8_t buff[nWrite] = {};
+                    Wire.write(src, nWrite);    // Write buffer
+                }
+                state = Wire.endTransmission();
+                if (state != 0) return state;
+
+                // wait up to 5ms for the write to complete, Wait 5ms max!!!
+                for (uint8_t i = 0; i < 10; i++) {
+                    delayMicroseconds(500);
+                    Wire.beginTransmission(ctrlByte);
+                    _sendAddr(0);
+                    state = Wire.endTransmission();
+                    if (state == 0) break;
+                }
+                if (state != 0) return state;
+
+                nAddr += nWrite;
+                // wData += nWrite;        // increment the input data pointer
+                size -= nWrite;
+            }
+            return 0;
+        };
+
+        void     extShow(const uint32_t& addrFrom = 0x0000, const uint32_t& addrTo = 0xFFFF, const uint8_t& quan = 32);  //TODO: addrTo FFFF, for 512 kbit only!!!! Not for module with memory less!!! ATTANTION!
+
+        ~LC_EXT_EEPROM();
+
+    private:
+        void    _getModelInfo(const eeprom_model_t& devModel);
+        uint8_t _checkQDevices();
+        void    _setTotalCapacity();
+        uint8_t _getCtrlByte(const uint32_t& addr);
+        void    _sendAddr(const uint32_t& addr);
+        uint8_t _readWire(uint32_t addr, uint8_t* wData, uint16_t qBytes);
+        uint8_t _writeWire(uint32_t addr, uint8_t* wData, uint16_t qBytes);  // <- It's a new version method of _write
+        uint8_t _write(uint32_t addr, uint8_t* wData, uint16_t qBytes = 1);
+    };
+
 
 #endif	/* LC_EEPROM_H */
