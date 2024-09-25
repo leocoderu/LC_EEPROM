@@ -10,28 +10,30 @@ void setup(){
   eeprom.begin();                               // Start working with eeprom
 
   uint16_t n = 0x0ABC;                          // Default data for read/write test
-  uint8_t res = 0;                              // Variable for Result
+  uint8_t  res = 0;                             // Variable for Result
   uint16_t gVal = 0;                            // Variable for getting Byte
-  uint16_t def = eeprom.extReadInt(ADDR);       // Save default value
-
+  uint16_t def = 0;                             // Save default value
+  
   Serial.print("New value for write \t0x"); Serial.println(n, HEX);
-  Serial.print("EEPROM value now \t0x"); Serial.println(def, HEX);
+
+  res = eeprom.extRead(ADDR, def);              // Save default value
+  Serial.print("EEPROM value now \t0x"); Serial.print(def, HEX); Serial.println(res == 0 ? "\tsuccess" : "\terror");
 
   // Write default data and return result of operation 
-  res = eeprom.extWriteInt(ADDR, n);   
+  res = eeprom.extWrite(ADDR, n);   
   Serial.print("Result operation write: 0x"); Serial.print(n, HEX); Serial.println(res == 0 ? "\tsuccess" : "\terror");
 
   // Get value by address
-  gVal = eeprom.extReadInt(ADDR);     
-  Serial.print("EEPROM value now \t0x"); Serial.println(gVal, HEX);
+  res = eeprom.extRead(ADDR, gVal);     
+  Serial.print("EEPROM value now \t0x"); Serial.print(gVal, HEX); Serial.println(res == 0 ? "\tsuccess" : "\terror");
 
   // Return value to address
-  res = eeprom.extWriteInt(ADDR, def); 
-  Serial.print("Result operation write: 0x"); Serial.print(def, HEX);  Serial.println(res == 0 ? "\tsuccess" : "\terror");
+  res = eeprom.extWrite(ADDR, def); 
+  Serial.print("Result operation write: 0x"); Serial.print(def, HEX); Serial.println(res == 0 ? "\tsuccess" : "\terror");
 
   // Get value by address
-  gVal = eeprom.extReadInt(ADDR);     
-  Serial.print("EEPROM value now \t0x"); Serial.println(gVal, HEX);
+  res = eeprom.extRead(ADDR, gVal);     
+  Serial.print("EEPROM value now \t0x"); Serial.print(gVal, HEX); Serial.println(res == 0 ? "\tsuccess" : "\terror");
 }
 
 void loop(){}

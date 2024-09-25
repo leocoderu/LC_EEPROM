@@ -1,3 +1,3 @@
 # LC_EEPROM
 
-Library for work with External EEPROM memory, based on 24LC512 microchip.
+Arduino library for work with Internal and External EEPROM memory, based on microchips 24XXNNNN series.

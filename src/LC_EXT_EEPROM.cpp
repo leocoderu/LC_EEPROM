@@ -1,7 +1,5 @@
 ﻿#include "LC_EEPROM.h"
 
-//using namespace LC_EXT_EEPROM;
-
 // CONSTRUCTOR
 LC_EXT_EEPROM::LC_EXT_EEPROM(const eeprom_model_t& devModel)
 {    
@@ -40,9 +38,10 @@ uint8_t LC_EXT_EEPROM::begin() {
     return Wire.endTransmission();
 }
 
-// Returns value of byte by address
-uint8_t LC_EXT_EEPROM::extReadByte(const uint32_t& addr) {
-    if (addr >= _totalCapacity) return 0;
+// Returns value of byte by address in dst param.
+// Return result of reading data: 0 - success, 1 - error out of memory, 2 - error of read
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, uint8_t& dst) {
+    if (addr >= _totalCapacity) return 1;
 
     uint8_t ctrlByte = _getCtrlByte(addr);
     Wire.beginTransmission(ctrlByte);                       // Control byte 0x50 .... 0x57
@@ -50,147 +49,324 @@ uint8_t LC_EXT_EEPROM::extReadByte(const uint32_t& addr) {
     Wire.endTransmission();
 
     Wire.requestFrom((uint8_t)ctrlByte, (uint8_t)1);        // In Wire library present two functions, (uint8_t) for disable attentions
-    return (Wire.available()) ? Wire.read() : 0;
+    
+    if (!Wire.available()) return 2;
+    dst = Wire.read(); 
+   
+    return 0;
 }
 
 // Returns Integer value (2 bytes) by address
-uint16_t LC_EXT_EEPROM::extReadInt(const uint32_t& addr) {
-    if (addr + 1 >= _totalCapacity) return 0;
-    return extReadByte(addr) << 8 | extReadByte(addr + 1);
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, uint16_t& dst) {
+    if (addr + 1 >= _totalCapacity) return 1;
+
+    dst = 0x0000;
+    for (uint8_t n = 0; n < 2; n++) {
+        uint8_t bt = 0;
+        if (extRead(addr + n, bt) != 0) { dst = 0x0000; return 2; }
+        dst |= (uint16_t)(bt << (8 * (1 - n)));
+    }
+
+    return 0;
 }
 
 // Returns Longint value (4 bytes) by address
-uint32_t LC_EXT_EEPROM::extReadLong(const uint32_t& addr) {
-    if (addr + 3 >= _totalCapacity) return 0;
-    return ((uint32_t)extReadByte(addr) << 24) | ((uint32_t)extReadByte(addr + 1) << 16) | ((uint32_t)extReadByte(addr + 2) << 8) | (uint32_t)extReadByte(addr + 3);
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, uint32_t& dst) {
+    if (addr + 3 >= _totalCapacity) return 1;
+    
+    dst = 0x00000000;
+    for (uint8_t n = 0; n < 4; n++) {
+        uint8_t  bt = 0;
+        if (extRead(addr + n, bt) != 0) { dst = 0x00000000; return 2; }
+        dst |= (uint32_t)(bt << (8 * (3 - n)));        
+    }
+    
+    return 0;
 }
 
-// Returns String value by address
-//String LC_EXT_EEPROM::extReadStr(const uint32_t& addr, const uint16_t& quan) {
-//    if ((addr + quan) >= _totalCapacity) return "";
-//
-//    String res = "";
-//    for (uint16_t i = 0; i < quan; i++)
-//        res += char(extReadByte(addr + i));
-//    return res;
-//}
+// Return String value by address
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, String& dst, const uint8_t& szDst) {
+    if ((addr + szDst) >= _totalCapacity) return 1;
 
-String LC_EXT_EEPROM::extReadStr(const uint32_t& addr, const uint16_t& quan) {
-    if ((addr + quan) >= _totalCapacity) return "";
-
-    //for (uint8_t j = 0; j <= (uint8_t)(quan / _pSize); j++) {   // Loop by pages
-    //    uint8_t ctrlByte = _getCtrlByte(addr + (j * _pSize));
-    //    Wire.beginTransmission(ctrlByte);                       // Control byte 0x50 .... 0x57
-    //    _sendAddr(addr + (j * _pSize));
-    //    Wire.endTransmission();
-
-    //    Wire.requestFrom((uint8_t)ctrlByte, (uint8_t)1);        // In Wire library present two functions, (uint8_t) for disable attentions
-    //    return (Wire.available()) ? Wire.read() : 0;
-
-    //}
-
-
-
-    String res = "";
-    for (uint16_t i = 0; i < quan; i++)
-        res += char(extReadByte(addr + i));
-    return res;
+    dst = "";
+    for (uint8_t i = 0; i < szDst; i++) {
+        uint8_t bt = 0;
+        if (extRead(addr + i, bt) != 0) return 2;
+        dst += char(bt);
+    }
+    return 0;
 }
 
 // Returns Block data by address with unsigned byte array
-uint8_t LC_EXT_EEPROM::extReadBlock(const uint32_t& addr, const uint8_t& defVal, uint8_t* dst, const uint8_t& szDst) {
-    if ((addr + szDst) >= _totalCapacity) return 1; // If we try read block outside, return error
-    memset(dst, defVal, szDst);                 // Set destination array values by default values
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, uint8_t* dst, const uint8_t& szDst) {
+    if ((addr + szDst) >= _totalCapacity) return 1;     // If we try read block outside, return error
+    memset(dst, 0xFF, szDst);                         // Set destination array values by default values
     for (uint8_t i = 0; i < szDst; i++) {
-        uint8_t bt = extReadByte(addr + i);
+        uint8_t bt = 0;
+        if (extRead(addr + i, bt) != 0) return 2;
         dst[i] = bt;
     }
     return 0;
 }
 
 // Returns Block data by address with signed byte array
-uint8_t LC_EXT_EEPROM::extReadBlock(const uint32_t& addr, const int8_t& defVal, int8_t* dst, const uint8_t& szDst) {
-    if ((addr + szDst) >= _totalCapacity) return 1; // If we try read block outside, return error
-    memset(dst, defVal, szDst);                 // Set destination array values by default values
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, int8_t* dst, const uint8_t& szDst) {
+    if ((addr + szDst) >= _totalCapacity) return 1;     // If we try read block outside, return error
+    memset(dst, 0x00, szDst);                           // Set destination array values by default values
     for (uint8_t i = 0; i < szDst; i++) {
-        uint8_t bt = extReadByte(addr + i);
-        if (bt == 0xFF) break; // TODO: needs to change 0xFF or not
-        dst[i] = bt;
-    }   // perhaps value 0xFF need to change by defVal, but if read block to char array needs the end by 0
+        uint8_t bt = 0;
+        if (extRead(addr + i, bt) != 0) return 2;
+        dst[i] = (bt - 128);
+    }   
     return 0;
 }
 
 // Write byte by address
-uint8_t LC_EXT_EEPROM::extWriteByte(const uint32_t& addr, const uint8_t& wByte) {
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const uint8_t& src) {
     //Serial.print("addr: "); Serial.println(addr, HEX);
     //Serial.print("_totalCapacity: "); Serial.println(_totalCapacity, HEX);
     if (addr >= _totalCapacity) return 1;
-    if (extReadByte(addr) != wByte) {
-        uint8_t wData[1] = { wByte };
+    
+    uint8_t bt = 0;
+    if (extRead(addr, bt) != 0) return 2;
+    
+    if (bt != src) {
+        uint8_t wData[1] = { src };
         _write(addr, wData, 1);
     }
     return 0;
 }
 
 // Write Integer value by address
-uint8_t LC_EXT_EEPROM::extWriteInt(const uint32_t& addr, const uint16_t& wInt) {
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const uint16_t& src) {
     if ((addr + 1) >= _totalCapacity) return 1;
-    if (extReadInt(addr) != wInt) {
-        uint8_t wData[2] = { (uint8_t)(wInt >> 8), (uint8_t)wInt };
+    
+    uint16_t def = 0;
+    if (extRead(addr, def) != 0) return 2;
+
+    if (def != src) {
+        uint8_t wData[2] = {};
+        for (uint8_t n = 0; n < 2; n++) 
+            wData[n] = (uint8_t)(src >> (8 * (1 - n)));
         _write(addr, wData, 2);
     }
+       
     return 0;
 }
 
 // Write Longint value by address
-uint8_t LC_EXT_EEPROM::extWriteLong(const uint32_t& addr, const uint32_t& wLong) {
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const uint32_t& src) {
     if ((addr + 3) >= _totalCapacity) return 1;
-    if (extReadLong(addr) != wLong) {
-        uint8_t wData[4] = { (uint8_t)(wLong >> 24), (uint8_t)(wLong >> 16), (uint8_t)(wLong >> 8), (uint8_t)wLong };
+
+    uint32_t def = 0;
+    if (extRead(addr, def) != 0) return 2;
+
+    if (def != src) {
+        uint8_t wData[4] = {};
+        for (uint8_t n = 0; n < 4; n++) 
+            wData[n] = (uint8_t)(src >> (8 * (3 - n)));
         _write(addr, wData, 4);
     }
+
     return 0;
 }
 
 // Write string by address
-uint8_t LC_EXT_EEPROM::extWriteStr(const uint32_t& addr, const String& sendStr){  
-    if ((addr + sendStr.length()) >= _totalCapacity) return 1;
-    if (extReadStr(addr, sendStr.length()) != sendStr) {
-        uint8_t wData[sendStr.length() + 1];                // Maybe need set last element of array, like 0x00, lot end of char array
-        //sendStr.toCharArray(wData, sizeof(wData));
-        for (uint8_t i = 0; i < sendStr.length(); i++) {
-            wData[i] = (uint8_t)sendStr[i];
-        };
-        wData[sendStr.length()] = '\0';
-        _write(addr, wData, sendStr.length());
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const String& src) {
+    if ((addr + src.length() - 1) >= _totalCapacity) return 1;
+    String def = "";
+    if (extRead(addr, def, src.length()) != 0) return 2;
+
+    if (def != src) {
+        uint8_t wData[src.length() + 1];                // Maybe need set last element of array, like 0x00, lot end of char array
+        for (uint8_t i = 0; i < src.length(); i++) 
+            wData[i] = (uint8_t)src[i];        
+        wData[src.length()] = '\0';
+        _write(addr, wData, src.length());
     }
     return 0;
 }
 
 // Fill block memory by default value
-uint8_t LC_EXT_EEPROM::extFillBlock(const uint32_t& addr, const uint32_t& cnt, const uint8_t& bt) {
-    if ((addr + cnt) >= _totalCapacity) return 1;
-    for (uint32_t i = 0; i < cnt; i++) extWriteByte(addr + i, bt);
+uint8_t LC_EXT_EEPROM::extFill(const uint32_t& addr, const uint32_t& cnt, const uint8_t& src) {
+    if ((addr + cnt - 1) >= _totalCapacity) return 1;
+    for (uint32_t i = 0; i < cnt; i++) 
+        if (extWrite(addr + i, src) != 0) return 2;    
     return 0;
 }
 
-// Write Block data by address
-uint8_t LC_EXT_EEPROM::extWriteBlock(const uint32_t& addr, const uint8_t& defVal, const int8_t* src, const uint8_t& szSrc) {
-    if ((addr + szSrc) >= _totalCapacity) return 1;
-    extFillBlock(addr, szSrc, defVal);      // Clear valu EEPROM by default value
+// Write Block unsigned byte data by address
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const uint8_t* src, const uint8_t& szSrc) {
+    if ((addr + szSrc - 1) >= _totalCapacity) return 1;
+    extFill(addr, szSrc, 0xFF);                           // Clear value EEPROM by default value
     for (uint8_t i = 0; i < szSrc; i++)
-        if (((defVal == 0xFF) && (src[i] == INT8_MIN)) || ((defVal == 0x00) && (src[i] == 0x00))) break;
-        else extWriteByte(addr + i, src[i]);
+        extWrite(addr + i, src[i]);    
     return 0;
 }
 
+// Write Block signed byte like char data by address
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const int8_t* src, const uint8_t& szSrc) {
+    if ((addr + szSrc - 1) >= _totalCapacity) return 1;
+    extFill(addr, szSrc, 0x00);                           // Clear value EEPROM by default value
+    for (uint8_t i = 0; i < szSrc; i++)
+        extWrite(addr + i, (uint8_t)(src[i] + 128));        // if src = -128 then res = 0, if src = +127 then res = 255    
+    return 0;
+}
+
+// --------------------------------------------------------------------------------------------------------------------------------------
+
+
+//// Returns value of byte by address
+//uint8_t LC_EXT_EEPROM::extReadByte(const uint32_t& addr) {
+//    if (addr >= _totalCapacity) return 0;
+//
+//    uint8_t ctrlByte = _getCtrlByte(addr);
+//    Wire.beginTransmission(ctrlByte);                       // Control byte 0x50 .... 0x57
+//    _sendAddr(addr);
+//    Wire.endTransmission();
+//
+//    Wire.requestFrom((uint8_t)ctrlByte, (uint8_t)1);        // In Wire library present two functions, (uint8_t) for disable attentions
+//    return (Wire.available()) ? Wire.read() : 0;
+//}
+//
+//// Returns Integer value (2 bytes) by address
+//uint16_t LC_EXT_EEPROM::extReadInt(const uint32_t& addr) {
+//    if (addr + 1 >= _totalCapacity) return 0;
+//    return extReadByte(addr) << 8 | extReadByte(addr + 1);
+//}
+//
+//// Returns Longint value (4 bytes) by address
+//uint32_t LC_EXT_EEPROM::extReadLong(const uint32_t& addr) {
+//    if (addr + 3 >= _totalCapacity) return 0;
+//    return ((uint32_t)extReadByte(addr) << 24) | ((uint32_t)extReadByte(addr + 1) << 16) | ((uint32_t)extReadByte(addr + 2) << 8) | (uint32_t)extReadByte(addr + 3);
+//}
+//
+//// Returns String value by address
+////String LC_EXT_EEPROM::extReadStr(const uint32_t& addr, const uint16_t& quan) {
+////    if ((addr + quan) >= _totalCapacity) return "";
+////
+////    String res = "";
+////    for (uint16_t i = 0; i < quan; i++)
+////        res += char(extReadByte(addr + i));
+////    return res;
+////}
+//
+//String LC_EXT_EEPROM::extReadStr(const uint32_t& addr, const uint16_t& quan) {
+//    if ((addr + quan) >= _totalCapacity) return "";
+//
+//    //for (uint8_t j = 0; j <= (uint8_t)(quan / _pSize); j++) {   // Loop by pages
+//    //    uint8_t ctrlByte = _getCtrlByte(addr + (j * _pSize));
+//    //    Wire.beginTransmission(ctrlByte);                       // Control byte 0x50 .... 0x57
+//    //    _sendAddr(addr + (j * _pSize));
+//    //    Wire.endTransmission();
+//
+//    //    Wire.requestFrom((uint8_t)ctrlByte, (uint8_t)1);        // In Wire library present two functions, (uint8_t) for disable attentions
+//    //    return (Wire.available()) ? Wire.read() : 0;
+//
+//    //}
+//
+//
+//
+//    String res = "";
+//    for (uint16_t i = 0; i < quan; i++)
+//        res += char(extReadByte(addr + i));
+//    return res;
+//}
+//
+//// Returns Block data by address with unsigned byte array
+//uint8_t LC_EXT_EEPROM::extReadBlock(const uint32_t& addr, const uint8_t& defVal, uint8_t* dst, const uint8_t& szDst) {
+//    if ((addr + szDst) >= _totalCapacity) return 1; // If we try read block outside, return error
+//    memset(dst, defVal, szDst);                 // Set destination array values by default values
+//    for (uint8_t i = 0; i < szDst; i++) {
+//        uint8_t bt = extReadByte(addr + i);
+//        dst[i] = bt;
+//    }
+//    return 0;
+//}
+//
+//// Returns Block data by address with signed byte array
+//uint8_t LC_EXT_EEPROM::extReadBlock(const uint32_t& addr, const int8_t& defVal, int8_t* dst, const uint8_t& szDst) {
+//    if ((addr + szDst) >= _totalCapacity) return 1; // If we try read block outside, return error
+//    memset(dst, defVal, szDst);                 // Set destination array values by default values
+//    for (uint8_t i = 0; i < szDst; i++) {
+//        uint8_t bt = extReadByte(addr + i);
+//        if (bt == 0xFF) break; // TODO: needs to change 0xFF or not
+//        dst[i] = bt;
+//    }   // perhaps value 0xFF need to change by defVal, but if read block to char array needs the end by 0
+//    return 0;
+//}
+//
+//// Write byte by address
+//uint8_t LC_EXT_EEPROM::extWriteByte(const uint32_t& addr, const uint8_t& wByte) {
+//    //Serial.print("addr: "); Serial.println(addr, HEX);
+//    //Serial.print("_totalCapacity: "); Serial.println(_totalCapacity, HEX);
+//    if (addr >= _totalCapacity) return 1;
+//    if (extReadByte(addr) != wByte) {
+//        uint8_t wData[1] = { wByte };
+//        _write(addr, wData, 1);
+//    }
+//    return 0;
+//}
+//
+//// Write Integer value by address
+//uint8_t LC_EXT_EEPROM::extWriteInt(const uint32_t& addr, const uint16_t& wInt) {
+//    if ((addr + 1) >= _totalCapacity) return 1;
+//    if (extReadInt(addr) != wInt) {
+//        uint8_t wData[2] = { (uint8_t)(wInt >> 8), (uint8_t)wInt };
+//        _write(addr, wData, 2);
+//    }
+//    return 0;
+//}
+//
+//// Write Longint value by address
+//uint8_t LC_EXT_EEPROM::extWriteLong(const uint32_t& addr, const uint32_t& wLong) {
+//    if ((addr + 3) >= _totalCapacity) return 1;
+//    if (extReadLong(addr) != wLong) {
+//        uint8_t wData[4] = { (uint8_t)(wLong >> 24), (uint8_t)(wLong >> 16), (uint8_t)(wLong >> 8), (uint8_t)wLong };
+//        _write(addr, wData, 4);
+//    }
+//    return 0;
+//}
+//
+//// Write string by address
+//uint8_t LC_EXT_EEPROM::extWriteStr(const uint32_t& addr, const String& sendStr){  
+//    if ((addr + sendStr.length()) >= _totalCapacity) return 1;
+//    if (extReadStr(addr, sendStr.length()) != sendStr) {
+//        uint8_t wData[sendStr.length() + 1];                // Maybe need set last element of array, like 0x00, lot end of char array
+//        //sendStr.toCharArray(wData, sizeof(wData));
+//        for (uint8_t i = 0; i < sendStr.length(); i++) {
+//            wData[i] = (uint8_t)sendStr[i];
+//        };
+//        wData[sendStr.length()] = '\0';
+//        _write(addr, wData, sendStr.length());
+//    }
+//    return 0;
+//}
+//
+//// Fill block memory by default value
+//uint8_t LC_EXT_EEPROM::extFillBlock(const uint32_t& addr, const uint32_t& cnt, const uint8_t& bt) {
+//    if ((addr + cnt) >= _totalCapacity) return 1;
+//    for (uint32_t i = 0; i < cnt; i++) extWriteByte(addr + i, bt);
+//    return 0;
+//}
+//
 //// Write Block data by address
-//void LC_EXT_EEPROM::extWriteBlock(const uint32_t& addr, const int8_t& defVal, const int8_t* src, const uint8_t& szSrc) {
-//    extFillBlock(addr, szSrc, defVal);
+//uint8_t LC_EXT_EEPROM::extWriteBlock(const uint32_t& addr, const uint8_t& defVal, const int8_t* src, const uint8_t& szSrc) {
+//    if ((addr + szSrc) >= _totalCapacity) return 1;
+//    extFillBlock(addr, szSrc, defVal);      // Clear valu EEPROM by default value
 //    for (uint8_t i = 0; i < szSrc; i++)
 //        if (((defVal == 0xFF) && (src[i] == INT8_MIN)) || ((defVal == 0x00) && (src[i] == 0x00))) break;
 //        else extWriteByte(addr + i, src[i]);
+//    return 0;
 //}
+//
+////// Write Block data by address
+////void LC_EXT_EEPROM::extWriteBlock(const uint32_t& addr, const int8_t& defVal, const int8_t* src, const uint8_t& szSrc) {
+////    extFillBlock(addr, szSrc, defVal);
+////    for (uint8_t i = 0; i < szSrc; i++)
+////        if (((defVal == 0xFF) && (src[i] == INT8_MIN)) || ((defVal == 0x00) && (src[i] == 0x00))) break;
+////        else extWriteByte(addr + i, src[i]);
+////}
 
 // ---------------------------------------------- Show EEPROM ---------------------------------------------------------
 void LC_EXT_EEPROM::extShow(const uint32_t& addrFrom, const uint32_t& addrTo, const uint8_t& quan) {
@@ -214,8 +390,11 @@ void LC_EXT_EEPROM::extShow(const uint32_t& addrFrom, const uint32_t& addrTo, co
 
         uint8_t res[quan];
         String tmpStr = "";
-        for (uint8_t i = 0; i < quan; i++)
-            tmpStr += LC_EEPROM::_preFix(String(extReadByte((j * quan) + i), HEX), 2, '0') + ' ';
+        for (uint8_t i = 0; i < quan; i++) {
+            uint8_t bt = 0;
+            extRead((j * quan) + i, bt);
+            tmpStr += LC_EEPROM::_preFix(String(bt, HEX), 2, '0') + ' ';
+        }
         tmpStr.toUpperCase();
         Serial.println(tmpStr);
     }
