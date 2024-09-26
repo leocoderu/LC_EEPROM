@@ -1,13 +1,15 @@
 #include <LC_EEPROM.h>
-#define ADDR 0x0400                             // Address byte for test
+#define ADDR 0x0400                             // Address for test
 
-LC_EXT_EEPROM eeprom(_24LC512);                 // Create object with model and quantity of modules eeprom
+LC_EXT_EEPROM eeprom(_24LC512);                 // Create object with model eeprom
 
 void setup(){
   Serial.begin(9600); delay(500);               // Delay for init EEPROM memory
   Serial.println();
 
   eeprom.begin();                               // Start working with eeprom
+
+  // eeprom.extFill(ADDR, 0x1FF, 0xFF);         // Filling memory with a certain value
   
   // Default data for read/write test
   String  newV = "Testing long long long string, its the biggest testing string #1 Testing long long long string, its the biggest testing string #2 Testing long long long string, its the biggest testing string #3";
@@ -40,8 +42,9 @@ void setup(){
   res = eeprom.extRead(ADDR, getV, 194);     
   Serial.print("EEPROM value now \t"); Serial.println(getV);
   Serial.println(res == 0 ? "Result: success\n" : "Result: error\n");
-  
-  //eeprom.intShow(ADDR, ADDR + 0x1FF, 32);
+
+  eeprom.extShow(ADDR, ADDR + 0x1FF, 32);     // Show memory values
+
 }
 
 void loop(){}

@@ -1,7 +1,7 @@
 #include <LC_EEPROM.h>
-#define ADDR 0x400                              // Address byte for test
+#define ADDR 0x400                              // Address for test
 
-LC_EXT_EEPROM eeprom(_24LC512);                 // Create object with model and quantity of modules eeprom
+LC_EXT_EEPROM eeprom(_24LC512);                 // Create object with model eeprom
   
 void setup(){
   Serial.begin(9600); delay(500);               // Delay for init EEPROM memory
@@ -11,7 +11,7 @@ void setup(){
 
   uint8_t n = 0x0A;                             // Default data for read/write test
   uint8_t res = 0;                              // Variable for Result
-  uint8_t gVal = 0;                            // Variable for getting Byte
+  uint8_t gVal = 0;                             // Variable for getting Byte
   uint8_t def = 0;                              // Save default value
   
   Serial.print("New value for write \t0x"); Serial.println(n, HEX);

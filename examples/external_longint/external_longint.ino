@@ -1,7 +1,7 @@
 #include <LC_EEPROM.h>
-#define ADDR 0x400                              // Address byte for test
+#define ADDR 0x400                              // Address for test
 
-LC_EXT_EEPROM eeprom(_24LC512);                 // Create object with model and quantity of modules eeprom
+LC_EXT_EEPROM eeprom(_24LC512);                 // Create object with model eeprom
 
 void setup(){
   Serial.begin(9600); delay(500);               // Delay for init EEPROM memory
@@ -34,6 +34,8 @@ void setup(){
   // Get value by address
   res = eeprom.extRead(ADDR, gVal);     
   Serial.print("EEPROM value now \t0x"); Serial.print(gVal, HEX); Serial.println(res == 0 ? "\tsuccess" : "\terror");
+
+  //eeprom.extShow(ADDR, ADDR + 0x2F, 32);
 }
 
 void loop(){}

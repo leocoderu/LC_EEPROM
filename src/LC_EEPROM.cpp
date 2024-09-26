@@ -4,7 +4,13 @@
 
 LC_EEPROM::LC_EEPROM(){}
 
-// ---------------------------------------------- Internal EEPROM -----------------------------------------------------
+uint32_t LC_EEPROM::intTotalCapacity() { return EEPROM.length(); }
+
+void LC_EEPROM::info() {
+    Serial.print("Internal memory EEPROM range: [ 0x0000 - 0x"); Serial.print(_preFix(String(EEPROM.length() - 1, HEX), 4, '0')); Serial.println(" ]"); 
+}
+
+// -------------------------------------------- PUBLIC FUNCTIONS -------------------------------------------------------
 // Returns value of byte by address
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint8_t& dst) {
     if (addr >= EEPROM.length()) return 1;
@@ -27,17 +33,18 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint32_t& dst) {
 }
 
 // Returns String value by address
-uint8_t LC_EEPROM::intRead(const uint32_t& addr, String& dst, const uint8_t& szDst) {
+uint8_t LC_EEPROM::intRead(const uint32_t& addr, String& dst, const uint8_t& szDst) {    
+    if ((addr + szDst - 1) >= EEPROM.length()) return 1;
+
     dst = "";
-    if ((addr + szDst) >= EEPROM.length()) return 1;
-        for (uint8_t i = 0; i < szDst; i++)
-            dst += char(EEPROM.read(addr + i));
+    for (uint8_t i = 0; i < szDst; i++)
+        dst += char(EEPROM.read(addr + i));
     return 0;
 }
 
 // Returns Block data by address with unsigned byte array, like byte array
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint8_t* dst, const uint8_t& szDst) {
-    if ((addr + szDst) >= EEPROM.length()) return 1; // If we try read block outside, return error
+    if ((addr + szDst - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
     memset(dst, 0xFF, szDst);                     
     for (uint8_t i = 0; i < szDst; i++) {
         uint8_t v = 0;
@@ -47,19 +54,33 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint8_t* dst, const uint8_t& sz
     return 0;
 }
 
-// Returns Block data by address with signed byte array, like char array
-//uint8_t LC_EEPROM::intReadBlock(const uint32_t& addr, const int8_t& defVal, int8_t* dst, const uint8_t& szDst) {
+// Returns Block data by address with signed byte array
+uint8_t LC_EEPROM::intRead(const uint32_t& addr, int8_t* dst, const uint8_t& szDst) {
+    if ((addr + szDst - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
+    memset(dst, 0x00, szDst);
+    for (uint8_t i = 0; i < szDst; i++) {
+        uint8_t v = 0;
+        if (intRead(addr + i, v) != 0) return 2;
+        dst[i] = (v - 128);
+    }
+    return 0;
+}
+
+// Returns Block data by address with char array
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, char* dst, const uint8_t& szDst) {
-    if ((addr + szDst) >= EEPROM.length()) return 1; // If we try read block outside, return error
+    if ((addr + szDst - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
     memset(dst, 0x00, szDst);                     
     for (uint8_t i = 0; i < szDst; i++) {
         uint8_t v = 0;
         if (intRead(addr + i, v) != 0) return 2;
         //if (bt == 0x00) break;
-        dst[i] = (char)(v - 128);
+        //dst[i] = (char)(v - 128);
+        dst[i] = (v - 128);
     }
     return 0;
 }
+
+// ---------------------------------------------  Write Functions  ----------------------------------------------------
 
 // Write byte by address
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint8_t& src) {    
@@ -87,26 +108,17 @@ uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint16_t& src) {
 // Write Longint value by address
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint32_t& src){
     if ((addr + 3) >= EEPROM.length()) return 1;
-    //uint8_t tByte = (uint8_t)(wLong >> 24); EEPROM.update(addr, tByte);
     EEPROM.update(addr, (uint8_t)(src >> 24));
-    //Serial.print("Write 0x"); Serial.print(addr + 0, HEX); Serial.print(" - "); Serial.println(tByte, HEX);
-    //tByte = (uint8_t)((wLong << 8)  >> 24); EEPROM.update(addr + 1, tByte);
     EEPROM.update(addr + 1, (uint8_t)(src >> 16));
-    //Serial.print("Write 0x"); Serial.print(addr + 1, HEX); Serial.print(" - "); Serial.println(tByte, HEX);
-    //tByte = (uint8_t)((wLong << 16) >> 24); EEPROM.update(addr + 2, tByte);
     EEPROM.update(addr + 2, (uint8_t)(src >> 8));
-    //Serial.print("Write 0x"); Serial.print(addr + 2, HEX); Serial.print(" - "); Serial.println(tByte, HEX);
-    //tByte = (uint8_t)((wLong << 24) >> 24); EEPROM.update(addr + 3, tByte);
     EEPROM.update(addr + 3, (uint8_t)src);
-    //Serial.print("Write 0x"); Serial.print(addr + 3, HEX); Serial.print(" - "); Serial.println(tByte, HEX);
-    //if (intReadLong(addr) != wLong) return 2;
     uint32_t v = 0x00000000;
     if (intRead(addr, v) != 0) return 2;
     if (v != src) return 2;
     return 0;
 }
 
-// Write string by address
+// Write String by address
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const String& src){
     if ((addr + src.length() - 1) >= EEPROM.length()) return 1;
     for (uint8_t i = 0; i < src.length(); i++) EEPROM.update(addr + i, src[i]);
@@ -140,13 +152,21 @@ uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint8_t* src, const uint
     return 0;
 }
 
-//void printB(char* src, const uint8_t& sz) {
-//    Serial.print("[");
-//    for (uint8_t n = 0; n < sz; n++) Serial.print(src[n]);
-//    Serial.println("]");
-//}
+// Write Block with int8_t data by address
+uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const int8_t* src, const uint8_t& szSrc) {
+    if ((addr + szSrc - 1) >= EEPROM.length()) return 1;
+    if (intFill(addr, szSrc, 0x00) != 0) return 2;
+    for (uint8_t i = 0; i < szSrc; i++) {
+        if (intWrite(addr + i, (uint8_t)(src[i] + 128)) != 0) return 2;
+    }
+    int8_t buff[szSrc] = {};
+    if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
 
-// Write Block with CHAR data by address
+    return 0;
+}
+
+// Write Block with char data by address
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const char* src, const uint8_t& szSrc) {
     if ((addr + szSrc - 1) >= EEPROM.length()) return 1;
     if (intFill(addr, szSrc, 0x00) != 0) return 2;
@@ -156,39 +176,66 @@ uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const char* src, const uint8_t
     }
     char buff[szSrc] = {};
     if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-    //printB(buff, sizeof(buff));
-    //printB(src, szSrc);
     if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
 
-    //if (strcmp(buff, src) != 0) return 2;
     return 0;
 }
 
 // ---------------------------------------------- Show EEPROM ---------------------------------------------------------
 void LC_EEPROM::intShow(const uint32_t& addrFrom, const uint32_t& addrTo, const uint8_t& quan) {
+    if (addrFrom >= addrTo) {
+        Serial.print("Error: Incorrect memory range!");
+        return 0;
+    }
+    
     Serial.println("Internal EEPROM memory...");
 
     // Header of table
     Serial.print(F("\n     "));
     for (uint8_t i = 0; i < quan; i++) {
-        String tmpStr = LC_EEPROM::_preFix(String(i, HEX), 2, '0') + ' ';
+        String tmpStr = _preFix(String(i, HEX), 2, '0') + ' ';
         tmpStr.toUpperCase();
         Serial.print(tmpStr);
     }
     Serial.println();
     for (uint16_t j = (addrFrom / quan); j < (addrTo / quan + 1); j++) {
-        String tSt = LC_EEPROM::_preFix(String(j * quan, HEX), 4, '0') + ' ';
+        String tSt = _preFix(String(j * quan, HEX), 4, '0') + ' ';
         tSt.toUpperCase();
         Serial.print(tSt);              
         for (uint8_t i = 0; i < quan; i++) {
             uint8_t v = 0;
             intRead((j * quan) + i, v);
-            String tmpStr = LC_EEPROM::_preFix(String(v, HEX), 2, '0') + ' ';
+            String tmpStr = _preFix(String(v, HEX), 2, '0') + ' ';
             tmpStr.toUpperCase();
             Serial.print(tmpStr);
         }
         Serial.println();
     }
+}
+
+void LC_EEPROM::outBuffer(int8_t* src, const uint8_t& sz) {
+    Serial.print("[");
+    for (uint8_t n = 0; n < sz; n++) {
+        Serial.print(src[n], DEC);
+        Serial.print(" ");
+    }
+    Serial.println("]");
+}
+
+void LC_EEPROM::outBuffer(uint8_t* src, const uint8_t& sz) {
+    Serial.print("[");
+    for (uint8_t n = 0; n < sz; n++) {
+        if (src[n] < 16) Serial.print("0");
+        Serial.print(src[n], HEX);
+        Serial.print(" ");
+    }
+    Serial.println("]");
+}
+
+void LC_EEPROM::outBuffer(char* src, const uint8_t& sz) {
+    Serial.print("[");
+    for (uint8_t n = 0; n < sz; n++) Serial.print(src[n]);
+    Serial.println("]");
 }
 
 LC_EEPROM::~LC_EEPROM() {}
@@ -201,9 +248,3 @@ String LC_EEPROM::_preFix(String str, uint8_t quan, char chr = '0') {
 }
 
 // ------------------------------------------- PRIVATE FUNCTIONS -------------------------------------------------------
-//bool LC_EEPROM::_cmpBuffers(const char* src, const uint8_t& szSrc, const char* dst, const uint8_t& szDst) {
-//    if (szSrc != szDst) return false;
-//    for (uint8_t i = 0; i < szSrc; i++)
-//        if (src[i] != dst[i]) return false;
-//    return true;
-//}

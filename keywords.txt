@@ -16,11 +16,12 @@ intRead				KEYWORD2
 intWrite			KEYWORD2
 intFill				KEYWORD2
 intShow				KEYWORD2
+intTotalCapacity	KEYWORD2
 extRead				KEYWORD2
 extWrite			KEYWORD2
 extFill				KEYWORD2
 extShow				KEYWORD2
-getTotalCapacity	KEYWORD2
+extTotalCapacity	KEYWORD2
 getCapacity			KEYWORD2
 setCapacity			KEYWORD2
 getQDevices			KEYWORD2
@@ -29,6 +30,7 @@ getPageSize			KEYWORD2
 setPageSize			KEYWORD2
 getFrequency		KEYWORD2
 setFrequency		KEYWORD2
+outBuffer			KEYWORD2
 
 #######################################
 # Constants (LITERAL1)

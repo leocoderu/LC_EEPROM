@@ -1,7 +1,7 @@
 #include <LC_EEPROM.h>
 #define ADDR 0x0400                             // Address byte for test
 
-LC_EEPROM eeprom;
+LC_EEPROM eeprom;                               // Create object eeprom
 
 void setup(){
   Serial.begin(9600); delay(500);               // Delay for init EEPROM memory

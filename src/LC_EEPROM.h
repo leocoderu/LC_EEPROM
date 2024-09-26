@@ -74,40 +74,70 @@ enum eeprom_model_t {
     class LC_EEPROM {
 
     public:
+        // CONSTRUCTOR
         LC_EEPROM();
 
-        // Function for Internal EEPROM memory
-        uint8_t     intRead(const uint32_t& addr, uint8_t& dst);
-        uint8_t     intRead(const uint32_t& addr, uint16_t& dst);
-        uint8_t     intRead(const uint32_t& addr, uint32_t& dst);
-        uint8_t     intRead(const uint32_t& addr, String& dst, const uint8_t& szDst);
-        uint8_t     intRead(const uint32_t& addr, uint8_t* dst, const uint8_t& szDst);
-        uint8_t     intRead(const uint32_t& addr, char* dst, const uint8_t& szDst);
+        uint32_t intTotalCapacity();
+        void     info();
+        
+        // Functions for working with internal EEPROM memory
+        uint8_t  intRead(const uint32_t& addr, uint8_t& dst);
+        uint8_t  intRead(const uint32_t& addr, int8_t& dst);
+        uint8_t  intRead(const uint32_t& addr, uint16_t& dst);
+        uint8_t  intRead(const uint32_t& addr, int16_t& dst);
+        uint8_t  intRead(const uint32_t& addr, uint32_t& dst);
+        uint8_t  intRead(const uint32_t& addr, int32_t& dst);
+        uint8_t  intRead(const uint32_t& addr, String& dst, const uint8_t& szDst);
+        uint8_t  intRead(const uint32_t& addr, uint8_t* dst, const uint8_t& szDst);
+        uint8_t  intRead(const uint32_t& addr, int8_t* dst, const uint8_t& szDst);        
+        uint8_t  intRead(const uint32_t& addr, char* dst, const uint8_t& szDst);
+        uint8_t  intRead(const uint32_t& addr, uint16_t* dst, const uint8_t& szDst);
+        uint8_t  intRead(const uint32_t& addr, int16_t* dst, const uint8_t& szDst);
+        uint8_t  intRead(const uint32_t& addr, int* dst, const uint8_t& szDst);
+        uint8_t  intRead(const uint32_t& addr, uint32_t* dst, const uint8_t& szDst);
+        uint8_t  intRead(const uint32_t& addr, int32_t* dst, const uint8_t& szDst);
+        uint8_t  intRead(const uint32_t& addr, double* dst, const uint8_t& szDst);
+        uint8_t  intRead(const uint32_t& addr, float* dst, const uint8_t& szDst);
 
-        uint8_t     intWrite(const uint32_t& addr, const uint8_t& src);
-        uint8_t     intWrite(const uint32_t& addr, const uint16_t& src);
-        uint8_t     intWrite(const uint32_t& addr, const uint32_t& src);
-        uint8_t     intWrite(const uint32_t& addr, const String& src);
-        uint8_t     intFill (const uint32_t& addr, const uint32_t& cnt, const uint8_t& src);
-        uint8_t     intWrite(const uint32_t& addr, const uint8_t* src, const uint8_t& szSrc);
-        uint8_t     intWrite(const uint32_t& addr, const char* src, const uint8_t& szSrc);
+        uint8_t  intWrite(const uint32_t& addr, const uint8_t& src);
+        uint8_t  intWrite(const uint32_t& addr, const int8_t& src);
+        uint8_t  intWrite(const uint32_t& addr, const uint16_t& src);
+        uint8_t  intWrite(const uint32_t& addr, const int16_t& src);
+        uint8_t  intWrite(const uint32_t& addr, const uint32_t& src);
+        uint8_t  intWrite(const uint32_t& addr, const int32_t& src);
+        uint8_t  intWrite(const uint32_t& addr, const String& src);
+        uint8_t  intFill (const uint32_t& addr, const uint32_t& cnt, const uint8_t& src);
+        uint8_t  intWrite(const uint32_t& addr, const uint8_t* src, const uint8_t& szSrc);
+        uint8_t  intWrite(const uint32_t& addr, const int8_t* src, const uint8_t& szSrc);
+        uint8_t  intWrite(const uint32_t& addr, const char* src, const uint8_t& szSrc);
+        uint8_t  intWrite(const uint32_t& addr, const uint16_t* src, const uint8_t& szSrc);
+        uint8_t  intWrite(const uint32_t& addr, const int16_t* src, const uint8_t& szSrc);
+        uint8_t  intWrite(const uint32_t& addr, const int* src, const uint8_t& szSrc);
+        uint8_t  intWrite(const uint32_t& addr, const uint32_t* src, const uint8_t& szSrc);
+        uint8_t  intWrite(const uint32_t& addr, const int32_t* src, const uint8_t& szSrc);
+        uint8_t  intWrite(const uint32_t& addr, const double* src, const uint8_t& szSrc);
+        uint8_t  intWrite(const uint32_t& addr, const float* src, const uint8_t& szSrc);
 
-        void        intShow(const uint32_t& addrFrom = 0x0000, const uint32_t& addrTo = EEPROM.length() - 1, const uint8_t& quan = 32);
+        void     intShow(const uint32_t& addrFrom = 0x0000, const uint32_t& addrTo = EEPROM.length() - 1, const uint8_t& quan = 32);
+        void     outBuffer(int8_t* src, const uint8_t& sz);
+        void     outBuffer(uint8_t* src, const uint8_t& sz);
+        void     outBuffer(char* src, const uint8_t& sz);
 
         ~LC_EEPROM();
 
     protected:
-        String      _preFix(String str, uint8_t quan, char chr);
-
-    private:
-        //bool        _cmpBuffers(const char* src, const uint8_t& szSrc, const char* dst, const uint8_t& szDst);
+        String   _preFix(String str, uint8_t quan, char chr);
+    
         template <typename T>
-        bool        _cmpBuffers(const T* src, const uint8_t& szSrc, const T* dst, const uint8_t& szDst) {
+        bool     _cmpBuffers(const T* src, const uint8_t& szSrc, const T* dst, const uint8_t& szDst) {
             if (szSrc != szDst) return false;
             for (uint8_t i = 0; i < szSrc; i++)
                 if (src[i] != dst[i]) return false;
             return true;
         }
+
+    private:
+        // Some private function will be here
     };
 
     class LC_EXT_EEPROM : public LC_EEPROM {
@@ -120,10 +150,12 @@ enum eeprom_model_t {
 
     public:
         // CONSTRUCTOR
-        LC_EXT_EEPROM(const eeprom_model_t& devModel); //, const uint8_t& pSize);
+        LC_EXT_EEPROM(const eeprom_model_t& devModel);
 
         uint8_t  begin();
-        uint32_t getTotalCapacity();
+        uint32_t extTotalCapacity();
+        bool     exists();
+        void     info();
 
         // Getters & Setters
         uint16_t getCapacity();
@@ -135,28 +167,14 @@ enum eeprom_model_t {
         uint8_t  getFrequency();
         void     setFrequency(uint8_t freq);
 
-        // Function for External EEPROM memory
-        /*uint8_t  extReadByte(const uint32_t& addr);
-        uint16_t extReadInt(const uint32_t& addr);
-        uint32_t extReadLong(const uint32_t& addr);
-        String   extReadStr(const uint32_t& addr, const uint16_t& quan);
-        uint8_t  extReadBlock(const uint32_t& addr, const uint8_t& defVal, uint8_t* dst, const uint8_t& szDst);
-        uint8_t  extReadBlock(const uint32_t& addr, const int8_t& defVal, int8_t* dst, const uint8_t& szDst);
-
-        uint8_t  extWriteByte(const uint32_t& addr, const uint8_t& wByte);
-        uint8_t  extWriteInt(const uint32_t& addr, const uint16_t& wInt);
-        uint8_t  extWriteLong(const uint32_t& addr, const uint32_t& wDouble);
-        uint8_t  extWriteStr(const uint32_t& addr, const String& sendStr);
-        uint8_t  extFillBlock(const uint32_t& addr, const uint32_t& cnt, const uint8_t& bt);
-        uint8_t  extWriteBlock(const uint32_t& addr, const uint8_t& defVal, const int8_t* src, const uint8_t& szSrc);*/
-        //uint8_t  extWriteBlock(const uint32_t& addr, const int8_t& defVal, const int8_t* src, const uint8_t& szSrc);
-
+        // Functions for working with external EEPROM memory
         uint8_t  extRead(const uint32_t& addr, uint8_t& dst);
         uint8_t  extRead(const uint32_t& addr, uint16_t& dst);
         uint8_t  extRead(const uint32_t& addr, uint32_t& dst);
         uint8_t  extRead(const uint32_t& addr, String& dst, const uint8_t& quan);
         uint8_t  extRead(const uint32_t& addr, uint8_t* dst, const uint8_t& szDst);
         uint8_t  extRead(const uint32_t& addr, int8_t* dst, const uint8_t& szDst);
+        uint8_t  extRead(const uint32_t& addr, char* dst, const uint8_t& szDst);
 
         uint8_t  extWrite(const uint32_t& addr, const uint8_t& src);
         uint8_t  extWrite(const uint32_t& addr, const uint16_t& src);
@@ -165,89 +183,9 @@ enum eeprom_model_t {
         uint8_t  extFill (const uint32_t& addr, const uint32_t& cnt, const uint8_t& src);
         uint8_t  extWrite(const uint32_t& addr, const uint8_t* src, const uint8_t& szSrc);
         uint8_t  extWrite(const uint32_t& addr, const int8_t* src, const uint8_t& szSrc);
+        uint8_t  extWrite(const uint32_t& addr, const char* src, const uint8_t& szSrc);
 
-        /*template <typename T>
-        uint8_t extRead(const uint32_t& addr, T& dst){
-            Serial.print("extRead addr: 0x"); Serial.println(addr, HEX);
-            Serial.print("extRead dst:  "); Serial.println(sizeof(dst), DEC);
-
-            uint8_t rxState = 0;
-            uint16_t size = sizeof(dst);
-            if ((addr + size - 1) >= _totalCapacity) return 1;
-
-            uint8_t ctrlByte = _getCtrlByte(addr);
-
-            Wire.beginTransmission(ctrlByte);
-            _sendAddr(addr);
-            rxState = Wire.endTransmission();
-            if (rxState != 0) return rxState;
-
-            Wire.requestFrom((uint8_t)ctrlByte, (uint16_t)size);
-            if (Wire.available()) dst = Wire.read();
-
-            return 0;
-        }*/
-
-        //template <typename T>
-        //uint8_t extWrite(uint32_t addr, const T& src) {
-        //    uint8_t  state = 0;
-        //    uint16_t size = sizeof(src);
-        //    if ((addr + size - 1) >= _totalCapacity) return 1;
-
-        //    while (size > 0) {
-        //        uint8_t nWrite = (size < _pSize) ? size : _pSize;
-        //        uint8_t ctrlByte = _getCtrlByte(addr);
-
-        //        Wire.beginTransmission(ctrlByte);
-        //        _sendAddr(addr);
-
-        //        uint8_t buff[nWrite] = {};
-        //        switch (nWrite) {
-        //        case 1: 
-        //            buff[0] = (uint8_t)src;
-        //            break;
-        //        case 2:
-        //            buff[0] = (uint8_t)((uint16_t)src >> 8);
-        //            buff[1] = (uint8_t)src;
-        //            break;
-        //        case 4:
-        //            buff[0] = (uint8_t)((uint32_t)src >> 24);
-        //            buff[1] = (uint8_t)((uint32_t)src >> 16);
-        //            buff[2] = (uint8_t)((uint32_t)src >> 8);
-        //            buff[3] = (uint8_t)src;
-        //            break;
-        //        }
-        //        Wire.write(buff, nWrite);
-
-        //       /* if (typeof(src)) {
-        //            Serial.println("Byte");
-        //        }*/
-
-        //        //if ((typename(src) == typename(uint8_t)) || (typename(src) == typename(String))) { Wire.write(src); }  // Write byte
-        //        //else {
-        //        //    //uint8_t buff[nWrite] = {};
-        //        //    Wire.write(src, nWrite);    // Write buffer
-        //        //}
-        //        state = Wire.endTransmission();
-        //        if (state != 0) return state;
-
-        //        // wait up to 5ms for the write to complete, Wait 5ms max!!!
-        //        for (uint8_t i = 0; i < 10; i++) {
-        //            delayMicroseconds(500);
-        //            Wire.beginTransmission(ctrlByte);
-        //            _sendAddr(0);
-        //            state = Wire.endTransmission();
-        //            if (state == 0) break;
-        //        }
-        //        if (state != 0) return state;
-
-        //        addr += nWrite;
-        //        size -= nWrite;
-        //    }
-        //    return 0;
-        //};
-
-        void    extShow(const uint32_t& addrFrom = 0x0000, const uint32_t& addrTo = 0xFFFF, const uint8_t& quan = 32);  //TODO: addrTo FFFF, for 512 kbit only!!!! Not for module with memory less!!! ATTANTION!
+        void     extShow(const uint32_t& addrFrom = 0x0000, const uint32_t& addrTo = 0x0000, const uint8_t& quan = 32); 
 
         ~LC_EXT_EEPROM();
 
@@ -259,7 +197,7 @@ enum eeprom_model_t {
         void    _sendAddr(const uint32_t& addr);
         uint8_t _readWire(uint32_t addr, uint8_t* wData, uint16_t qBytes);
         uint8_t _writeWire(uint32_t addr, uint8_t* wData, uint16_t qBytes);  // <- It's a new version method of _write
-        uint8_t _write(uint32_t addr, uint8_t* wData, uint16_t qBytes = 1);
+        uint8_t _write(uint32_t addr, uint8_t* src, uint16_t szSrc = 1);
     };
 
 
