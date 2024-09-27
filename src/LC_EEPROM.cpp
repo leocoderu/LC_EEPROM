@@ -128,15 +128,6 @@ uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const String& src){
     return 0;
 }
 
-// Fill block memory by default value
-uint8_t LC_EEPROM::intFill(const uint32_t& addr, const uint32_t& cnt, const uint8_t& src) {
-    if ((addr + cnt - 1) >= EEPROM.length()) return 1;
-    for (uint32_t i = 0; i < cnt; i++) 
-        if (intWrite(addr + i, src) != 0) return 2;    
-    //if (intReadStr(addr, sendStr.length()) != sendStr) return 2; TODO: Check complete operation
-    return 0;
-}
-
 // Write Block with BYTE data by address
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint8_t* src, const uint8_t& szSrc) {
     if ((addr + szSrc - 1) >= EEPROM.length()) return 1;
@@ -178,6 +169,14 @@ uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const char* src, const uint8_t
     if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
     if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
 
+    return 0;
+}
+
+// Fill block memory by default value
+uint8_t LC_EEPROM::intFill(const uint32_t& addr, const uint32_t& cnt, const uint8_t& src) {
+    if ((addr + cnt - 1) >= EEPROM.length()) return 1;
+    for (uint32_t i = 0; i < cnt; i++)
+        if (intWrite(addr + i, src) != 0) return 2;
     return 0;
 }
 

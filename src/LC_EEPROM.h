@@ -87,6 +87,9 @@ enum eeprom_model_t {
         uint8_t  intRead(const uint32_t& addr, int16_t& dst);
         uint8_t  intRead(const uint32_t& addr, uint32_t& dst);
         uint8_t  intRead(const uint32_t& addr, int32_t& dst);
+        uint8_t  intRead(const uint32_t& addr, uint64_t& dst);
+        uint8_t  intRead(const uint32_t& addr, int64_t& dst);
+        uint8_t  intRead(const uint32_t& addr, uint8_t& nBit, bool& state);
         uint8_t  intRead(const uint32_t& addr, String& dst, const uint8_t& szDst);
         uint8_t  intRead(const uint32_t& addr, uint8_t* dst, const uint8_t& szDst);
         uint8_t  intRead(const uint32_t& addr, int8_t* dst, const uint8_t& szDst);        
@@ -105,8 +108,10 @@ enum eeprom_model_t {
         uint8_t  intWrite(const uint32_t& addr, const int16_t& src);
         uint8_t  intWrite(const uint32_t& addr, const uint32_t& src);
         uint8_t  intWrite(const uint32_t& addr, const int32_t& src);
-        uint8_t  intWrite(const uint32_t& addr, const String& src);
-        uint8_t  intFill (const uint32_t& addr, const uint32_t& cnt, const uint8_t& src);
+        uint8_t  intWrite(const uint32_t& addr, const uint64_t& src);
+        uint8_t  intWrite(const uint32_t& addr, const int64_t& src);
+        uint8_t  intWrite(const uint32_t& addr, const uint8_t& nBit, const bool& state);
+        uint8_t  intWrite(const uint32_t& addr, const String& src);        
         uint8_t  intWrite(const uint32_t& addr, const uint8_t* src, const uint8_t& szSrc);
         uint8_t  intWrite(const uint32_t& addr, const int8_t* src, const uint8_t& szSrc);
         uint8_t  intWrite(const uint32_t& addr, const char* src, const uint8_t& szSrc);
@@ -117,6 +122,7 @@ enum eeprom_model_t {
         uint8_t  intWrite(const uint32_t& addr, const int32_t* src, const uint8_t& szSrc);
         uint8_t  intWrite(const uint32_t& addr, const double* src, const uint8_t& szSrc);
         uint8_t  intWrite(const uint32_t& addr, const float* src, const uint8_t& szSrc);
+        uint8_t  intFill(const uint32_t& addr, const uint32_t& cnt, const uint8_t& src);
 
         void     intShow(const uint32_t& addrFrom = 0x0000, const uint32_t& addrTo = EEPROM.length() - 1, const uint8_t& quan = 32);
         void     outBuffer(int8_t* src, const uint8_t& sz);
