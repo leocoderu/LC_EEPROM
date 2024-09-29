@@ -246,4 +246,6 @@ String LC_EEPROM::_preFix(String str, uint8_t quan, char chr = '0') {
     return result;
 }
 
+uint32_t LC_EEPROM::_float_to_long(const float& f) { return *(unsigned long*)&f; }
+
 // ------------------------------------------- PRIVATE FUNCTIONS -------------------------------------------------------
