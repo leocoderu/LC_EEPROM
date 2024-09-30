@@ -251,36 +251,36 @@ void LC_EXT_EEPROM::extShow(const uint32_t& addrFrom, const uint32_t& addrTo, co
 
     if (addrFrom >= nAddrTo) {
         Serial.print("Error: Incorrect memory range!");
-        return 0;
     }
+    else {
+        Serial.print("External EEPROM memory...");
 
-    Serial.print("External EEPROM memory...");
-
-    // Header of table
-    Serial.print(F("\nI2C  Address  "));
-    for (uint8_t i = 0; i < quan; i++) {
-        String tmpStr = _preFix(String(i, HEX), 2, '0') + ' ';
-        tmpStr.toUpperCase();
-        Serial.print(tmpStr);
-    }
-    Serial.println();
-    for (uint32_t j = (addrFrom / quan); j < (nAddrTo / quan + 1); j++) {
-        String cByte = F("0x");
-        cByte += String(_getCtrlByte(j * quan), HEX) + ' ';
-        String tSt = _preFix(String(j * quan, HEX), 8, '0') + ' ';
-        tSt.toUpperCase();
-        tSt = cByte + tSt;
-        Serial.print(tSt);
-
-        uint8_t res[quan];
-        String tmpStr = "";
+        // Header of table
+        Serial.print(F("\nI2C  Address  "));
         for (uint8_t i = 0; i < quan; i++) {
-            uint8_t bt = 0;
-            extRead((j * quan) + i, bt);
-            tmpStr += _preFix(String(bt, HEX), 2, '0') + ' ';
+            String tmpStr = _preFix(String(i, HEX), 2, '0') + ' ';
+            tmpStr.toUpperCase();
+            Serial.print(tmpStr);
         }
-        tmpStr.toUpperCase();
-        Serial.println(tmpStr);
+        Serial.println();
+        for (uint32_t j = (addrFrom / quan); j < (nAddrTo / quan + 1); j++) {
+            String cByte = F("0x");
+            cByte += String(_getCtrlByte(j * quan), HEX) + ' ';
+            String tSt = _preFix(String(j * quan, HEX), 8, '0') + ' ';
+            tSt.toUpperCase();
+            tSt = cByte + tSt;
+            Serial.print(tSt);
+
+            uint8_t res[quan];
+            String tmpStr = "";
+            for (uint8_t i = 0; i < quan; i++) {
+                uint8_t bt = 0;
+                extRead((j * quan) + i, bt);
+                tmpStr += _preFix(String(bt, HEX), 2, '0') + ' ';
+            }
+            tmpStr.toUpperCase();
+            Serial.println(tmpStr);
+        }
     }
 }
 

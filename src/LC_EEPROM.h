@@ -72,6 +72,7 @@ enum eeprom_model_t {
 };
 
     class LC_EEPROM {
+        uint8_t _archDev = 0; // 0 - AVR , 1 - ESP and other 32bit devices
 
     public:
         // CONSTRUCTOR
@@ -79,17 +80,23 @@ enum eeprom_model_t {
 
         uint32_t intTotalCapacity();
         void     info();
+
+        // Getters & Setters
+        void     setArchDev(const uint8_t& archDev);
         
-        // Functions for working with internal EEPROM memory
+        // 24 Functions with differnt types for working with internal EEPROM memory
         uint8_t  intRead(const uint32_t& addr, uint8_t& dst);
         uint8_t  intRead(const uint32_t& addr, int8_t& dst);
+        uint8_t  intRead(const uint32_t& addr, char& dst);
         uint8_t  intRead(const uint32_t& addr, uint16_t& dst);
         uint8_t  intRead(const uint32_t& addr, int16_t& dst);
         uint8_t  intRead(const uint32_t& addr, uint32_t& dst);
         uint8_t  intRead(const uint32_t& addr, int32_t& dst);
         uint8_t  intRead(const uint32_t& addr, uint64_t& dst);
         uint8_t  intRead(const uint32_t& addr, int64_t& dst);
-        uint8_t  intRead(const uint32_t& addr, uint8_t& nBit, bool& state);
+        uint8_t  intRead(const uint32_t& addr, float& dst);
+        uint8_t  intRead(const uint32_t& addr, double& dst);
+        uint8_t  intRead(const uint32_t& addr, const uint8_t& nBit, bool& state);
         uint8_t  intRead(const uint32_t& addr, String& dst, const uint8_t& szDst);
         uint8_t  intRead(const uint32_t& addr, uint8_t* dst, const uint8_t& szDst);
         uint8_t  intRead(const uint32_t& addr, int8_t* dst, const uint8_t& szDst);        
@@ -100,17 +107,20 @@ enum eeprom_model_t {
         uint8_t  intRead(const uint32_t& addr, int32_t* dst, const uint8_t& szDst);
         uint8_t  intRead(const uint32_t& addr, uint64_t* dst, const uint8_t& szDst);
         uint8_t  intRead(const uint32_t& addr, int64_t* dst, const uint8_t& szDst);
-        uint8_t  intRead(const uint32_t& addr, double* dst, const uint8_t& szDst);
         uint8_t  intRead(const uint32_t& addr, float* dst, const uint8_t& szDst);
+        uint8_t  intRead(const uint32_t& addr, double* dst, const uint8_t& szDst);
 
         uint8_t  intWrite(const uint32_t& addr, const uint8_t& src);
         uint8_t  intWrite(const uint32_t& addr, const int8_t& src);
+        uint8_t  intWrite(const uint32_t& addr, const char& src);
         uint8_t  intWrite(const uint32_t& addr, const uint16_t& src);
         uint8_t  intWrite(const uint32_t& addr, const int16_t& src);
         uint8_t  intWrite(const uint32_t& addr, const uint32_t& src);
         uint8_t  intWrite(const uint32_t& addr, const int32_t& src);
         uint8_t  intWrite(const uint32_t& addr, const uint64_t& src);
         uint8_t  intWrite(const uint32_t& addr, const int64_t& src);
+        uint8_t  intWrite(const uint32_t& addr, const float& src);
+        uint8_t  intWrite(const uint32_t& addr, const double& src);
         uint8_t  intWrite(const uint32_t& addr, const uint8_t& nBit, const bool& state);
         uint8_t  intWrite(const uint32_t& addr, const String& src);        
         uint8_t  intWrite(const uint32_t& addr, const uint8_t* src, const uint8_t& szSrc);
@@ -122,8 +132,8 @@ enum eeprom_model_t {
         uint8_t  intWrite(const uint32_t& addr, const int32_t* src, const uint8_t& szSrc);
         uint8_t  intWrite(const uint32_t& addr, const uint64_t* src, const uint8_t& szSrc);
         uint8_t  intWrite(const uint32_t& addr, const int64_t* src, const uint8_t& szSrc);
-        uint8_t  intWrite(const uint32_t& addr, const double* src, const uint8_t& szSrc);
         uint8_t  intWrite(const uint32_t& addr, const float* src, const uint8_t& szSrc);
+        uint8_t  intWrite(const uint32_t& addr, const double* src, const uint8_t& szSrc);
         
         uint8_t  intFill(const uint32_t& addr, const uint32_t& cnt, const uint8_t& src);
 
@@ -177,23 +187,58 @@ enum eeprom_model_t {
         uint8_t  getFrequency();
         void     setFrequency(uint8_t freq);
 
-        // Functions for working with external EEPROM memory
+        // 24 Functions with differnt types for working with external EEPROM memory
         uint8_t  extRead(const uint32_t& addr, uint8_t& dst);
+        uint8_t  extRead(const uint32_t& addr, int8_t& dst);
+        uint8_t  extRead(const uint32_t& addr, char& dst);
         uint8_t  extRead(const uint32_t& addr, uint16_t& dst);
+        uint8_t  extRead(const uint32_t& addr, int16_t& dst);
         uint8_t  extRead(const uint32_t& addr, uint32_t& dst);
-        uint8_t  extRead(const uint32_t& addr, String& dst, const uint8_t& quan);
+        uint8_t  extRead(const uint32_t& addr, int32_t& dst);
+        uint8_t  extRead(const uint32_t& addr, uint64_t& dst);
+        uint8_t  extRead(const uint32_t& addr, int64_t& dst);
+        uint8_t  extRead(const uint32_t& addr, float& dst);
+        uint8_t  extRead(const uint32_t& addr, double& dst);
+        uint8_t  extRead(const uint32_t& addr, const uint8_t& nBit, bool& state);
+        uint8_t  extRead(const uint32_t& addr, String& dst, const uint8_t& szDst);
         uint8_t  extRead(const uint32_t& addr, uint8_t* dst, const uint8_t& szDst);
         uint8_t  extRead(const uint32_t& addr, int8_t* dst, const uint8_t& szDst);
         uint8_t  extRead(const uint32_t& addr, char* dst, const uint8_t& szDst);
+        uint8_t  extRead(const uint32_t& addr, uint16_t* dst, const uint8_t& szDst);
+        uint8_t  extRead(const uint32_t& addr, int16_t* dst, const uint8_t& szDst);
+        uint8_t  extRead(const uint32_t& addr, uint32_t* dst, const uint8_t& szDst);
+        uint8_t  extRead(const uint32_t& addr, int32_t* dst, const uint8_t& szDst);
+        uint8_t  extRead(const uint32_t& addr, uint64_t* dst, const uint8_t& szDst);
+        uint8_t  extRead(const uint32_t& addr, int64_t* dst, const uint8_t& szDst);
+        uint8_t  extRead(const uint32_t& addr, float* dst, const uint8_t& szDst);
+        uint8_t  extRead(const uint32_t& addr, double* dst, const uint8_t& szDst);
 
         uint8_t  extWrite(const uint32_t& addr, const uint8_t& src);
+        uint8_t  extWrite(const uint32_t& addr, const int8_t& src);
+        uint8_t  extWrite(const uint32_t& addr, const char& src);
         uint8_t  extWrite(const uint32_t& addr, const uint16_t& src);
+        uint8_t  extWrite(const uint32_t& addr, const int16_t& src);
         uint8_t  extWrite(const uint32_t& addr, const uint32_t& src);
-        uint8_t  extWrite(const uint32_t& addr, const String& src);
-        uint8_t  extFill (const uint32_t& addr, const uint32_t& cnt, const uint8_t& src);
+        uint8_t  extWrite(const uint32_t& addr, const int32_t& src);
+        uint8_t  extWrite(const uint32_t& addr, const uint64_t& src);
+        uint8_t  extWrite(const uint32_t& addr, const int64_t& src);
+        uint8_t  extWrite(const uint32_t& addr, const float& src);
+        uint8_t  extWrite(const uint32_t& addr, const double& src);
+        uint8_t  extWrite(const uint32_t& addr, const uint8_t& nBit, const bool& state);
+        uint8_t  extWrite(const uint32_t& addr, const String& src);        
         uint8_t  extWrite(const uint32_t& addr, const uint8_t* src, const uint8_t& szSrc);
         uint8_t  extWrite(const uint32_t& addr, const int8_t* src, const uint8_t& szSrc);
         uint8_t  extWrite(const uint32_t& addr, const char* src, const uint8_t& szSrc);
+        uint8_t  extWrite(const uint32_t& addr, const uint16_t* src, const uint8_t& szSrc);
+        uint8_t  extWrite(const uint32_t& addr, const int16_t* src, const uint8_t& szSrc);
+        uint8_t  extWrite(const uint32_t& addr, const uint32_t* src, const uint8_t& szSrc);
+        uint8_t  extWrite(const uint32_t& addr, const int32_t* src, const uint8_t& szSrc);
+        uint8_t  extWrite(const uint32_t& addr, const uint64_t* src, const uint8_t& szSrc);
+        uint8_t  extWrite(const uint32_t& addr, const int64_t* src, const uint8_t& szSrc);
+        uint8_t  extWrite(const uint32_t& addr, const float* src, const uint8_t& szSrc);
+        uint8_t  extWrite(const uint32_t& addr, const double* src, const uint8_t& szSrc);
+
+        uint8_t  extFill(const uint32_t& addr, const uint32_t& cnt, const uint8_t& src);
 
         void     extShow(const uint32_t& addrFrom = 0x0000, const uint32_t& addrTo = 0x0000, const uint8_t& quan = 32); 
 
