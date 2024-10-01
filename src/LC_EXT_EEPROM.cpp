@@ -72,27 +72,135 @@ uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, uint8_t& dst) {
     return 0;
 }
 
+// Read - signed int 8 bit, [ -128 - +127 ]
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, int8_t& dst) {
+    if (addr >= _totalCapacity) return 1;
+    uint8_t v = 0;
+    if (extRead(addr, v) != 0) return 2;
+    dst = (int8_t)(v - 128);
+    return 0;
+}
+
+// Read - char 8 bit, [ 'A' / 'B' / another symbol ]
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, char& dst) {
+    if (addr >= _totalCapacity) return 1;
+    uint8_t v = 0;
+    if (extRead(addr, v) != 0) return 2;
+    dst = (char)(v - 128);
+    return 0;
+}
+
 // Read - unsigned int 16bit, [ 0 - 65535 ]
 uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, uint16_t& dst) {
-    if ((addr + 1) >= _totalCapacity) return 1;
+    uint8_t sz = sizeof(dst);                                       // Get size of variable
+
+    if ((addr + sz - 1) >= _totalCapacity) return 1;
     dst = 0x0000;
-    for (uint8_t n = 0; n < 2; n++) {
-        uint8_t bt = 0;
-        if (extRead(addr + n, bt) != 0) { dst = 0x0000; return 2; }
-        dst |= (uint16_t)bt << (8 * (1 - n));
+    for (uint8_t n = 0; n < sz; n++) {
+        uint8_t v = 0;
+        if (extRead(addr + n, v) != 0) { dst = 0x0000; return 2; }
+        dst |= (uint16_t)v << (8 * (sz - 1 - n));
     }
+    return 0;
+}
+
+// Read - signed int 16 bit, [ -32768 - +32767 ]
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, int16_t& dst) {
+    uint8_t sz = sizeof(dst);                                       // Get size of variable
+
+    if ((addr + sz - 1) >= _totalCapacity) return 1;
+    uint16_t v = 0;
+    if (extRead(addr, v) != 0) return 2;
+    dst = (int16_t)(v - 32768);
     return 0;
 }
 
 // Read - unsigned int 32bit, [ 0 - 4294967295 ]
 uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, uint32_t& dst) {
-    if ((addr + 3) >= _totalCapacity) return 1;
+    uint8_t sz = sizeof(dst);                                       // Get size of variable
+
+    if ((addr + sz - 1) >= _totalCapacity) return 1;
     dst = 0x00000000;
-    for (uint8_t n = 0; n < 4; n++) {
-        uint8_t  bt = 0;
-        if (extRead(addr + n, bt) != 0) { dst = 0x00000000; return 2; }
-        dst |= (uint32_t)bt << (8 * (3 - n));      
+    for (uint8_t n = 0; n < sz; n++) {
+        uint8_t  v = 0;
+        if (extRead(addr + n, v) != 0) { dst = 0x00000000; return 2; }
+        dst |= (uint32_t)v << (8 * (sz - 1 - n));      
     }
+    return 0;
+}
+
+// Read - signed int 32 bit, [ -2147483648 - +2147483647 ]
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, int32_t& dst) {
+    uint8_t sz = sizeof(dst);                                       // Get size of variable
+
+    if ((addr + sz - 1) >= _totalCapacity) return 1;
+    uint32_t v = 0;
+    if (extRead(addr, v) != 0) return 2;
+    dst = (int32_t)(v - 2147483648);
+    return 0;
+}
+
+// Read - unsigned int 64 bit, [ 0 - 0xFFFFFFFFFFFFFFFF ]
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, uint64_t& dst) {
+    uint8_t sz = sizeof(dst);                                       // Get size of variable
+
+    if ((addr + sz - 1) >= _totalCapacity) return 1;
+    dst = 0x0000000000000000;
+    for (uint8_t n = 0; n < sz; n++) {
+        uint8_t  v = 0;
+        if (extRead(addr + n, v) != 0) { dst = 0x0000000000000000; return 2; }
+        dst |= (uint64_t)v << (8 * (sz - 1 - n));
+    }
+    return 0;
+}
+
+// Read - signed int 64 bit, [ -9,223,372,036,854,775,808 - +9,223,372,036,854,775,807 ]
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, int64_t& dst) {
+    uint8_t sz = sizeof(dst);                                       // Get size of variable
+
+    if ((addr + sz - 1) >= _totalCapacity) return 1;
+    uint64_t v = 0;
+    if (extRead(addr, v) != 0) return 2;
+    dst = (int64_t)(v - 9223372036854775808UL);
+    return 0;
+}
+
+// Read - float 32 bit, [ -3.4E+38 - +3.4E+38 ]
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, float& dst) {
+    uint8_t sz = sizeof(dst);                                       // Get size of variable
+
+    if ((addr + sz - 1) >= _totalCapacity) return 1;
+    uint32_t v = 0;
+    if (extRead(addr, v) != 0) return 2;
+    dst = *(float*)&v;
+    return 0;
+}
+
+// Read - double 64 bit, [ -1.7E+308 - +1.7E+308 ]
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, double& dst) {
+    uint8_t sz = sizeof(dst);                                       // Get size of double variable, it may be 4 / 8
+    if ((addr + sz - 1) >= _totalCapacity) return 1;
+
+    if (sz == 4) {
+        uint32_t v = 0;
+        if (extRead(addr, v) != 0) return 2;
+        dst = *(double*)&v;
+    };
+    if (sz == 8) {
+        uint64_t v = 0;
+        if (extRead(addr, v) != 0) return 2;
+        dst = *(double*)&v;
+    };
+    
+    return 0;
+}
+
+// Read - Bit 1 bit, [ 0 / 1 ]
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, const uint8_t& nBit, bool& state) {
+    if ((nBit > 7) || (addr >= _totalCapacity)) return 1;       // If Address, out if memory, return error code 1
+    uint8_t v = 0;  
+    if (extRead(addr, v) != 0) return 2;                        // Get Byte by address
+    state = bitRead(v, nBit);                                   // Get Bit in Byte by address
     return 0;
 }
 
@@ -101,9 +209,9 @@ uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, String& dst, const uint8_t&
     if ((addr + szDst - 1) >= _totalCapacity) return 1;
     dst = "";
     for (uint8_t i = 0; i < szDst; i++) {
-        uint8_t bt = 0;
-        if (extRead(addr + i, bt) != 0) return 2;
-        dst += char(bt);
+        uint8_t v = 0;
+        if (extRead(addr + i, v) != 0) return 2;
+        dst += char(v);
     }
     return 0;
 }
@@ -113,9 +221,9 @@ uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, uint8_t* dst, const uint8_t
     if ((addr + szDst - 1) >= _totalCapacity) return 1; // If we try read block outside, return error
     memset(dst, 0xFF, szDst);                           // Set destination array values by default values
     for (uint8_t i = 0; i < szDst; i++) {
-        uint8_t bt = 0;
-        if (extRead(addr + i, bt) != 0) return 2;
-        dst[i] = bt;
+        uint8_t v = 0;
+        if (extRead(addr + i, v) != 0) return 2;
+        dst[i] = v;
     }
     return 0;
 }
@@ -125,9 +233,9 @@ uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, int8_t* dst, const uint8_t&
     if ((addr + szDst - 1) >= _totalCapacity) return 1; // If we try read block outside, return error
     memset(dst, 0x00, szDst);                           // Set destination array values by default values
     for (uint8_t i = 0; i < szDst; i++) {
-        uint8_t bt = 0;
-        if (extRead(addr + i, bt) != 0) return 2;
-        dst[i] = (bt - 128);
+        int8_t v = 0;
+        if (extRead(addr + i, v) != 0) return 2;
+        dst[i] = v;
     }   
     return 0;
 }
@@ -137,9 +245,121 @@ uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, char* dst, const uint8_t& s
     if ((addr + szDst - 1) >= _totalCapacity) return 1; // If we try read block outside, return error
     memset(dst, 0x00, szDst);                           // Set destination array values by default values
     for (uint8_t i = 0; i < szDst; i++) {
-        uint8_t v = 0;
+        char v = '\0';
         if (extRead(addr + i, v) != 0) return 2;
-        dst[i] = (v - 128);
+        if (v == 0x00) break;                           // Read characters up to the zero character like end of the line
+        dst[i] = v;
+    }
+    return 0;
+}
+
+// Read Buffer - unsigned int 16 bit, [ 0 - 65535 ]
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, uint16_t* dst, const uint8_t& szDst) {
+    uint8_t sz = sizeof(dst[0]);
+
+    if ((addr + (szDst * sz) - 1) >= _totalCapacity) return 1;   // If we try read block outside, return error
+    memset(dst, 0xFF, szDst * sz);                               // Set destination array values by default values
+    for (uint8_t i = 0; i < szDst; i++) {
+        uint16_t v = 0;
+        if (extRead(addr + (i * sz), v) != 0) return 2;
+        dst[i] = v;
+    }
+    return 0;
+}
+
+// Read Buffer - signed int 16 bit, [ -32768 - +32767 ]
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, int16_t* dst, const uint8_t& szDst) {
+    uint8_t sz = sizeof(dst[0]);
+
+    if ((addr + (szDst * sz) - 1) >= _totalCapacity) return 1;   // If we try read block outside, return error
+    memset(dst, 0x00, szDst * sz);                               // Set destination array values by default values
+    for (uint8_t i = 0; i < szDst; i++) {
+        int16_t v = 0;
+        if (extRead(addr + (i * sz), v) != 0) return 2;
+        dst[i] = v;
+    }
+    return 0;
+}
+
+// Read Buffer - unsigned int 32 bit, [ 0 - 4294967295 ]
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, uint32_t* dst, const uint8_t& szDst) {
+    uint8_t sz = sizeof(dst[0]);
+
+    if ((addr + (szDst * sz) - 1) >= _totalCapacity) return 1;   // If we try read block outside, return error
+    memset(dst, 0xFF, szDst * sz);                               // Set destination array values by default values
+    for (uint8_t i = 0; i < szDst; i++) {
+        uint32_t v = 0;
+        if (extRead(addr + (i * sz), v) != 0) return 2;
+        dst[i] = v;
+    }
+    return 0;
+}
+
+// Read Buffer - signed int 32 bit, [ -2147483648 - +2147483647 ]
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, int32_t* dst, const uint8_t& szDst) {
+    uint8_t sz = sizeof(dst[0]);
+
+    if ((addr + (szDst * sz) - 1) >= _totalCapacity) return 1;   // If we try read block outside, return error
+    memset(dst, 0x00, szDst * sz);                               // Set destination array values by default values
+    for (uint8_t i = 0; i < szDst; i++) {
+        int32_t v = 0;
+        if (extRead(addr + (i * sz), v) != 0) return 2;
+        dst[i] = v;
+    }
+    return 0;
+}
+
+// Read Buffer - unsigned int 64 bit, [ 0 - 0xFFFFFFFFFFFFFFFF ]
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, uint64_t* dst, const uint8_t& szDst) {
+    uint8_t sz = sizeof(dst[0]);
+
+    if ((addr + (szDst * sz) - 1) >= _totalCapacity) return 1;   // If we try read block outside, return error
+    memset(dst, 0xFF, szDst * sz);                               // Set destination array values by default values
+    for (uint8_t i = 0; i < szDst; i++) {
+        uint64_t v = 0;
+        if (extRead(addr + (i * sz), v) != 0) return 2;
+        dst[i] = v;
+    }
+    return 0;
+}
+
+// Read Buffer - signed int 64 bit, [ -9,223,372,036,854,775,808 - +9,223,372,036,854,775,807 ]
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, int64_t* dst, const uint8_t& szDst) {
+    uint8_t sz = sizeof(dst[0]);
+
+    if ((addr + (szDst * sz) - 1) >= _totalCapacity) return 1;   // If we try read block outside, return error
+    memset(dst, 0x00, szDst * sz);                               // Set destination array values by default values
+    for (uint8_t i = 0; i < szDst; i++) {
+        int64_t v = 0;
+        if (extRead(addr + (i * sz), v) != 0) return 2;
+        dst[i] = v;
+    }
+    return 0;
+}
+
+// Read Buffer - float 32 bit, [ -3.4E+38 - +3.4E+38 ]
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, float* dst, const uint8_t& szDst) {
+    uint8_t sz = sizeof(dst[0]);
+
+    if ((addr + (szDst * sz) - 1) >= _totalCapacity) return 1;   // If we try read block outside, return error
+    memset(dst, 0xFF, szDst * sz);                               // Set destination array values by default values
+    for (uint8_t i = 0; i < szDst; i++) {
+        float v = 0;
+        if (extRead(addr + (i * sz), v) != 0) return 2;
+        dst[i] = v;
+    }
+    return 0;
+}
+
+uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, double* dst, const uint8_t& szDst) {
+    uint8_t sz = sizeof(dst[0]);                                 // Get size of double variable, it may be 4 / 8
+
+    if ((addr + (szDst * sz) - 1) >= _totalCapacity) return 1;   // If we try read block outside, return error
+    memset(dst, 0xFF, szDst * sz);                               // Set destination array values by default values
+    for (uint8_t i = 0; i < szDst; i++) {
+        double v = 0;
+        if (extRead(addr + (i * sz), v) != 0) return 2;
+        dst[i] = v;
     }
     return 0;
 }
@@ -149,39 +369,225 @@ uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, char* dst, const uint8_t& s
 // Write - unsigned int 8bit, [ 0 - 255 ]
 uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const uint8_t& src) {
     if (addr >= _totalCapacity) return 1;
-    uint8_t bt = 0;
-    if (extRead(addr, bt) != 0) return 2;
-    if (bt != src) {
+    uint8_t z = 0;
+    if (extRead(addr, z) != 0) return 2;
+    if (z != src) {
         uint8_t wData[1] = { src };
         if (_write(addr, wData, 1) != 0) return 2;
+
+        z = 0;
+        if (extRead(addr, z) != 0) return 2;
+        if (z != src) return 2;
+    }
+    return 0;
+}
+
+// Write - signed int 8bit, [ -128 - +127 ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const int8_t& src) {
+    if (addr >= _totalCapacity) return 1;       // Check outmemory 
+    
+    int8_t z = 0;
+    if (extRead(addr, z) != 0) return 2;        // Get data from memory
+    if (z != src) {                             // Check data in memory and src 
+        uint8_t v = (uint8_t)(src + 128);       // Transfer signed to unsigned data
+        if (extWrite(addr, v) != 0) return 2;   // Write unsigned data to memory
+
+        z = 0;
+        if (extRead(addr, z) != 0) return 2;    // Get wrote data
+        if (z != src) return 2;                 // Check wrote data and src
+    }
+    return 0;
+}
+
+// Write - char 8bit, [ 'A' / 'B' / another symbol ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const char& src) {
+    if (addr >= _totalCapacity) return 1;       // Check outmemory 
+
+    char z = '\0';
+    if (extRead(addr, z) != 0) return 2;        // Get data from memory
+    if (z != src) {                             // Check data in memory and src 
+        uint8_t v = (uint8_t)(src + 128);       // Transfer char to unsigned data
+        if (extWrite(addr, v) != 0) return 2;   // Write unsigned data to memory
+
+        z = '\0';
+        if (extRead(addr, z) != 0) return 2;    // Get wrote data
+        if (z != src) return 2;                 // Check wrote data and src
     }
     return 0;
 }
 
 // Write - unsigned int 16bit, [ 0 - 65535 ]
 uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const uint16_t& src) {
-    if ((addr + 1) >= _totalCapacity) return 1;
-    uint16_t def = 0;
-    if (extRead(addr, def) != 0) return 2;
-    if (def != src) {
-        uint8_t wData[2] = {};
-        for (uint8_t n = 0; n < 2; n++) 
-            wData[n] = (uint8_t)(src >> (8 * (1 - n)));
-        if (_write(addr, wData, 2) != 0) return 2;
+    uint8_t sz = sizeof(src);
+
+    if ((addr + sz - 1) >= _totalCapacity) return 1;
+    uint16_t z = 0x0000;
+    if (extRead(addr, z) != 0) return 2;
+    if (z != src) {
+        uint8_t wData[sz] = {};
+        for (uint8_t n = 0; n < sz; n++) 
+            wData[n] = (uint8_t)(src >> (8 * (sz - 1 - n)));
+        if (_write(addr, wData, sz) != 0) return 2;
+
+        z = 0x0000;
+        if (extRead(addr, z) != 0) return 2;            // Get wrote data
+        if (z != src) return 2;                         // Check wrote data and src
+    }
+    return 0;
+}
+
+// Write - signed int 16bit, [ -32768 - +32767 ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const int16_t& src) {
+    uint8_t sz = sizeof(src);
+    if ((addr + sz - 1) >= _totalCapacity) return 1;    // Check outmemory 
+
+    int16_t z = 0x0000;
+    if (extRead(addr, z) != 0) return 2;                // Get data from memory
+    if (z != src) {                                     // Check data in memory and src 
+        uint16_t v = (uint16_t)(src + 32768);           // Transfer signed to unsigned data
+        if (extWrite(addr, v) != 0) return 2;           // Write unsigned data to memory
+        
+        z = 0x0000;
+        if (extRead(addr, z) != 0) return 2;            // Get wrote data
+        if (z != src) return 2;                         // Check wrote data and src
     }
     return 0;
 }
 
 // Write - unsigned int 32bit, [ 0 - 4294967295 ]
 uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const uint32_t& src) {
-    if ((addr + 3) >= _totalCapacity) return 1;
-    uint32_t def = 0;
-    if (extRead(addr, def) != 0) return 2;
-    if (def != src) {
-        uint8_t wData[4] = {};
-        for (uint8_t n = 0; n < 4; n++) 
-            wData[n] = (uint8_t)(src >> (8 * (3 - n)));
-        if (_write(addr, wData, 4) != 0) return 2;
+    uint8_t sz = sizeof(src);
+    if ((addr + sz - 1) >= _totalCapacity) return 1;
+
+    uint32_t z = 0x00000000;
+    if (extRead(addr, z) != 0) return 2;
+    if (z != src) {
+        uint8_t wData[sz] = {};
+        for (uint8_t n = 0; n < sz; n++) 
+            wData[n] = (uint8_t)(src >> (8 * (sz - 1 - n)));
+        if (_write(addr, wData, sz) != 0) return 2;
+
+        z = 0x00000000;
+        if (extRead(addr, z) != 0) return 2;            // Get wrote data
+        if (z != src) return 2;                         // Check wrote data and src
+    }
+    return 0;
+}
+
+// Write - signed int 32bit, [ -2147483648 - +2147483647 ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const int32_t& src) {
+    uint8_t sz = sizeof(src);
+    if ((addr + sz - 1) >= _totalCapacity) return 1;
+    
+    int32_t z = 0x00000000;
+    if (extRead(addr, z) != 0) return 2;                // Get data from memory
+    if (z != src) {                                     // Check data in memory and src 
+        uint32_t v = (uint32_t)(src + 2147483648);      // Transfer signed to unsigned data
+        if (extWrite(addr, v) != 0) return 2;           // Write unsigned data to memory
+
+        z = 0x00000000;
+        if (extRead(addr, z) != 0) return 2;            // Get wrote data
+        if (z != src) return 2;                         // Check wrote data and src
+    }
+    return 0;
+}
+
+// Write - unsigned int 64bit, [ 0 - 0xFFFFFFFFFFFFFFFF ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const uint64_t& src) {
+    uint8_t sz = sizeof(src);
+    if ((addr + sz - 1) >= _totalCapacity) return 1;
+    
+    uint64_t z = 0x0000000000000000;
+    if (extRead(addr, z) != 0) return 2;
+    if (z != src) {
+        uint8_t wData[sz] = {};
+        for (uint8_t n = 0; n < sz; n++)
+            wData[n] = (uint8_t)(src >> (8 * (sz - 1 - n)));
+        if (_write(addr, wData, sz) != 0) return 2;
+
+        z = 0x0000000000000000;
+        if (extRead(addr, z) != 0) return 2;            // Get wrote data
+        if (z != src) return 2;                         // Check wrote data and src
+    }
+    return 0;
+}
+
+// Write - signed int 64bit, [ -9,223,372,036,854,775,808 - +9,223,372,036,854,775,807 ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const int64_t& src) {
+    uint8_t sz = sizeof(src);
+    if ((addr + sz - 1) >= _totalCapacity) return 1;
+
+    int64_t z = 0x0000000000000000;
+    if (extRead(addr, z) != 0) return 2;                        // Get data from memory
+    if (z != src) {                                             // Check data in memory and src 
+        uint64_t v = (uint64_t)(src + 9223372036854775808UL);   // Transfer signed to unsigned data
+        if (extWrite(addr, v) != 0) return 2;                   // Write unsigned data to memory
+
+        z = 0x0000000000000000;
+        if (extRead(addr, z) != 0) return 2;                    // Get wrote data
+        if (z != src) return 2;                                 // Check wrote data and src
+    }
+    return 0;
+}
+
+// Write - float 32bit, [ -3.4E+38 - +3.4E+38 ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const float& src) {
+    uint8_t sz = sizeof(src);
+
+    if ((addr + sz - 1) >= _totalCapacity) return 1;
+
+    float z = 0.0;
+    if (extRead(addr, z) != 0) return 2;                        // Get data from memory
+    if (z != src) {                                             // Check data in memory and src 
+        uint32_t v = *(unsigned long*)&src;
+        if (extWrite(addr, v) != 0) return 2;
+        
+        z = 0.0;
+        if (extRead(addr, z) != 0) return 2;                    // Get wrote data
+        if (z != src) return 2;                                 // Check wrote data and src
+    }
+    return 0;
+}
+
+// Write - double 64bit, [ -1.7E+308 - +1.7E+308 ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const double& src) {
+    uint8_t sz = sizeof(src);
+    if ((addr + sz - 1) >= _totalCapacity) return 1;
+
+    double z = 0.0;
+    if (extRead(addr, z) != 0) return 2;                        // Get data from memory
+    if (z != src) {                                             // Check data in memory and src 
+        if (sz == 4) {
+            uint32_t v = *(unsigned long*)&src;
+            if (extWrite(addr, v) != 0) return 2;
+        };
+        if (sz == 8) {
+            uint64_t v = *(uint64_t*)&src;
+            if (extWrite(addr, v) != 0) return 2;
+        };
+        z = 0.0;
+        if (extRead(addr, z) != 0) return 2;                    // Get wrote data
+        if (z != src) return 2;                                 // Check wrote data and src
+    }
+
+    return 0;
+}
+
+// Write - Bit 1 bit, [ 0 / 1 ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const uint8_t& nBit, const bool& state) {
+    if ((nBit > 7) || (addr >= _totalCapacity)) return 1;       // If we try read block outside, return error
+
+    bool z = false;
+    if (extRead(addr, nBit, z) != 0) return 2;                  // Get Info of Bit by address
+    if (z != state) {
+        uint8_t src = 0;
+        if (extRead(addr, src) != 0) return 2;                  // Get Byte by address
+        bitWrite(src, nBit, state);                             // Set Bit in Byte
+        if (extWrite(addr, src) != 0) return 2;                 // Update The byte
+
+        z = false;
+        if (extRead(addr, nBit, z) != 0) return 2;              // Get Info of Bit by address
+        if (z != state) return 2;                               // Compare info
     }
     return 0;
 }
@@ -189,14 +595,226 @@ uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const uint32_t& src) {
 // Write - String
 uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const String& src) {
     if ((addr + src.length() - 1) >= _totalCapacity) return 1;
-    String def = "";
-    if (extRead(addr, def, src.length()) != 0) return 2;
-    if (def != src) {
-        uint8_t wData[src.length() + 1];                // Maybe need set last element of array, like 0x00, lot end of char array
-        for (uint8_t i = 0; i < src.length(); i++) 
-            wData[i] = (uint8_t)src[i];        
-        wData[src.length()] = '\0';
+
+    String z = "";
+    if (extRead(addr, z, src.length()) != 0) return 2;
+    if (z != src) {
+        //uint8_t wData[src.length() + 1];                // Maybe need set last element of array, like 0x00, lot end of char array
+        uint8_t wData[src.length()];
+        for (uint8_t i = 0; i < src.length(); i++) wData[i] = (uint8_t)src[i];        
+        //wData[src.length()] = '\0';
         if (_write(addr, wData, src.length()) != 0) return 2;
+
+        z = "";
+        if (extRead(addr, z, src.length()) != 0) return 2;
+        if (z != src) return 2;
+    }
+    return 0;
+}
+
+// Write Buffer - unsigned int 8 bit, [ 0 - 255 ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const uint8_t* src, const uint8_t& szSrc) {
+    if ((addr + szSrc - 1) >= _totalCapacity) return 1;
+
+    uint8_t buff[szSrc] = {};
+    if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+        if (extFill(addr, szSrc, 0xFF) != 0) return 2;              // Clear value EEPROM by default value
+        for (uint8_t i = 0; i < szSrc; i++)
+            if (extWrite(addr + i, src[i]) != 0) return 2;
+        buff[szSrc] = {};
+        if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+    }
+    return 0;
+}
+
+// Write Buffer - signed int 8 bit, [ -128 - +127 ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const int8_t* src, const uint8_t& szSrc) {
+    if ((addr + szSrc - 1) >= _totalCapacity) return 1;
+
+    int8_t buff[szSrc] = {};
+    if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+        if (extFill(addr, szSrc, 0x00) != 0) return 2;                      // Clear value EEPROM by default value
+        for (uint8_t i = 0; i < szSrc; i++)
+            if (extWrite(addr + i, (uint8_t)(src[i] + 128)) != 0) return 2; // if src = -128 then res = 0, if src = +127 then res = 255    
+        buff[szSrc] = {};
+        if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+    }
+    return 0;
+}
+
+// Write Buffer - char, [ -128 - +127 ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const char* src, const uint8_t& szSrc) {
+    if ((addr + szSrc - 1) >= _totalCapacity) return 1;
+    
+    char buff[szSrc] = {};
+    if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+        if (extFill(addr, szSrc, 0x00) != 0) return 2;                      // Clear value EEPROM by default value
+        for (uint8_t i = 0; i < szSrc; i++) {
+            if (src[i] == 0x00) break;                                      // If write '\0' symbol, it is end of write char array
+            if (extWrite(addr + i, (uint8_t)(src[i] + 128)) != 0) return 2; // if src = -128 then res = 0, if src = +127 then res = 255        
+        }
+        buff[szSrc] = {};
+        if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+    }
+    return 0;
+}
+
+// Write Buffer - unsigned int 16 bit, [ 0 - 65535 ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const uint16_t* src, const uint8_t& szSrc) {
+    uint8_t sz = sizeof(src[0]);
+    if ((addr + (szSrc * sz) - 1) >= _totalCapacity) return 1;
+
+    uint16_t buff[szSrc] = {};
+    if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+        if (extFill(addr, szSrc * sz, 0xFF) != 0) return 2;                  // Clear value EEPROM by default value
+        for (uint8_t i = 0; i < szSrc; i++)
+            if (extWrite(addr + (i * sz), src[i]) != 0) return 2;
+        
+        buff[szSrc] = {};
+        if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+    }
+    return 0;
+}
+
+// Write Buffer - signed int 16 bit, [ -32768 - +32767 ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const int16_t* src, const uint8_t& szSrc) {
+    uint8_t sz = sizeof(src[0]);
+    if ((addr + (szSrc * sz) - 1) >= _totalCapacity) return 1;
+
+    int16_t buff[szSrc] = {};
+    if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+        if (extFill(addr, szSrc * sz, 0x00) != 0) return 2;                          // Clear value EEPROM by default value
+        for (uint8_t i = 0; i < szSrc; i++)
+            if (extWrite(addr + (i * sz), (uint16_t)(src[i] + 32768)) != 0) return 2;   
+
+        buff[szSrc] = {};
+        if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+    }
+    return 0;
+}
+
+// Write Buffer - unsigned int 32 bit, [ 0 - 4294967295 ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const uint32_t* src, const uint8_t& szSrc) {
+    uint8_t sz = sizeof(src[0]);
+    if ((addr + (szSrc * sz) - 1) >= _totalCapacity) return 1;
+
+    uint32_t buff[szSrc] = {};
+    if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+        if (extFill(addr, szSrc * sz, 0xFF) != 0) return 2;                  // Clear value EEPROM by default value
+        for (uint8_t i = 0; i < szSrc; i++)
+            if (extWrite(addr + (i * sz), src[i]) != 0) return 2;
+
+        buff[szSrc] = {};
+        if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+    }
+
+    return 0;
+}
+
+// Write Buffer - signed int 32 bit, [ -2147483648 - +2147483647 ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const int32_t* src, const uint8_t& szSrc) {
+    uint8_t sz = sizeof(src[0]);
+    if ((addr + (szSrc * sz) - 1) >= _totalCapacity) return 1;
+
+    int32_t buff[szSrc] = {};
+    if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+        if (extFill(addr, szSrc * sz, 0x00) != 0) return 2;                          // Clear value EEPROM by default value
+        for (uint8_t i = 0; i < szSrc; i++)
+            if (extWrite(addr + (i * sz), (uint32_t)(src[i] + 2147483648)) != 0) return 2;
+
+        buff[szSrc] = {};
+        if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+    }
+
+    return 0;
+}
+
+// Write Buffer - unsigned int 64 bit, [ 0 - 0xFFFFFFFFFFFFFFFF ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const uint64_t* src, const uint8_t& szSrc) {
+    uint8_t sz = sizeof(src[0]);
+    if ((addr + (szSrc * sz) - 1) >= _totalCapacity) return 1;
+
+    uint64_t buff[szSrc] = {};
+    if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+        if (extFill(addr, szSrc * sz, 0xFF) != 0) return 2;                  // Clear value EEPROM by default value
+        for (uint8_t i = 0; i < szSrc; i++)
+            if (extWrite(addr + (i * sz), src[i]) != 0) return 2;
+
+        buff[szSrc] = {};
+        if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+    }
+    return 0;
+}
+
+// Write Buffer - signed int 64 bit, [ -9,223,372,036,854,775,808 - +9,223,372,036,854,775,807 ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const int64_t* src, const uint8_t& szSrc) {
+    uint8_t sz = sizeof(src[0]);
+    if ((addr + (szSrc * sz) - 1) >= _totalCapacity) return 1;
+
+    int64_t buff[szSrc] = {};
+    if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+        if (extFill(addr, szSrc * sz, 0x00) != 0) return 2;                          // Clear value EEPROM by default value
+        for (uint8_t i = 0; i < szSrc; i++)
+            if (extWrite(addr + (i * sz), (uint64_t)(src[i] + 9223372036854775808UL)) != 0) return 2;
+
+        buff[szSrc] = {};
+        if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+    }
+    return 0;
+}
+
+// Write Buffer - float 32 bit, [ -3.4E+38 - +3.4E+38 ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const float* src, const uint8_t& szSrc) {
+    uint8_t sz = sizeof(src[0]);
+    if ((addr + (szSrc * sz) - 1) >= _totalCapacity) return 1;
+
+    float buff[szSrc] = {};
+    if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+        if (extFill(addr, szSrc * sz, 0xFF) != 0) return 2;                  // Clear value EEPROM by default value
+        for (uint8_t i = 0; i < szSrc; i++)
+            if (extWrite(addr + (i * sz), src[i]) != 0) return 2;
+
+        buff[szSrc] = {};
+        if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+    }
+    return 0;
+}
+
+// Write Buffer - double 64 bit, [ -1.7E+308 - +1.7E+308 ]
+uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const double* src, const uint8_t& szSrc) {
+    uint8_t sz = sizeof(src[0]);
+    if ((addr + (szSrc * sz) - 1) >= _totalCapacity) return 1;
+
+    double buff[szSrc] = {};
+    if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+        if (extFill(addr, szSrc * sz, 0xFF) != 0) return 2;                  // Clear value EEPROM by default value
+        for (uint8_t i = 0; i < szSrc; i++)
+            if (extWrite(addr + (i * sz), src[i]) != 0) return 2;
+
+        buff[szSrc] = {};
+        if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
     }
     return 0;
 }
@@ -204,44 +822,8 @@ uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const String& src) {
 // Fill block memory by default value
 uint8_t LC_EXT_EEPROM::extFill(const uint32_t& addr, const uint32_t& cnt, const uint8_t& src) {
     if ((addr + cnt - 1) >= _totalCapacity) return 1;
-    for (uint32_t i = 0; i < cnt; i++) 
-        if (extWrite(addr + i, src) != 0) return 2;    
-    return 0;
-}
-
-// Write Buffer - unsigned int 8 bit, [ 0 - 255 ]
-uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const uint8_t* src, const uint8_t& szSrc) {
-    if ((addr + szSrc - 1) >= _totalCapacity) return 1;
-    if (extFill(addr, szSrc, 0xFF) != 0) return 2;          // Clear value EEPROM by default value
-    for (uint8_t i = 0; i < szSrc; i++)
-        if (extWrite(addr + i, src[i]) != 0) return 2;    
-    uint8_t buff[szSrc] = {};
-    if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
-    return 0;
-}
-
-// Write Buffer - signed int 8 bit, [ -128 - +127 ]
-uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const int8_t* src, const uint8_t& szSrc) {
-    if ((addr + szSrc - 1) >= _totalCapacity) return 1;
-    if (extFill(addr, szSrc, 0x00) != 0) return 2;          // Clear value EEPROM by default value
-    for (uint8_t i = 0; i < szSrc; i++)
-        if (extWrite(addr + i, (uint8_t)(src[i] + 128)) != 0) return 2; // if src = -128 then res = 0, if src = +127 then res = 255    
-    int8_t buff[szSrc] = {};
-    if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
-    return 0;
-}
-
-// Write Buffer - char, [ -128 - +127 ]
-uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const char* src, const uint8_t& szSrc) {
-    if ((addr + szSrc - 1) >= _totalCapacity) return 1;
-    if (extFill(addr, szSrc, 0x00) != 0) return 2;          // Clear value EEPROM by default value
-    for (uint8_t i = 0; i < szSrc; i++)
-        if (extWrite(addr + i, (uint8_t)(src[i] + 128)) != 0) return 2; // if src = -128 then res = 0, if src = +127 then res = 255        
-    char buff[szSrc] = {};
-    if (extRead(addr, buff, sizeof(buff)) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+    for (uint32_t i = 0; i < cnt; i++)
+        if (extWrite(addr + i, src) != 0) return 2;
     return 0;
 }
 
@@ -340,7 +922,7 @@ uint8_t LC_EXT_EEPROM::_write(uint32_t addr, uint8_t* src, uint16_t szSrc) {
     if ((addr + szSrc - 1) >= _totalCapacity) return 1;
         
     while (szSrc > 0) {
-        uint16_t nPage = _pSize - (addr & (_pSize - 1));                // Part of page size for write data from address
+        uint16_t nPage = _pSize - (addr & (_pSize - 1));              // Part of page size for write data from address
         uint16_t nWrite = (szSrc < nPage) ? szSrc : nPage;            // Quantity of Bytes that you cat write to page
         uint8_t  ctrlByte = _getCtrlByte(addr);
 

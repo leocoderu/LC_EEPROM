@@ -72,7 +72,6 @@ enum eeprom_model_t {
 };
 
     class LC_EEPROM {
-        uint8_t _archDev = 0; // 0 - AVR , 1 - ESP and other 32bit devices
 
     public:
         // CONSTRUCTOR
@@ -81,9 +80,6 @@ enum eeprom_model_t {
         uint32_t intTotalCapacity();
         void     info();
 
-        // Getters & Setters
-        void     setArchDev(const uint8_t& archDev);
-        
         // 24 Functions with differnt types for working with internal EEPROM memory
         uint8_t  intRead(const uint32_t& addr, uint8_t& dst);
         uint8_t  intRead(const uint32_t& addr, int8_t& dst);
@@ -146,7 +142,7 @@ enum eeprom_model_t {
 
     protected:
         String   _preFix(String str, uint8_t quan, char chr);
-        uint32_t _float_to_long(const float& f);
+        //uint32_t _float_to_long(const float& f);
     
         template <typename T>
         bool     _cmpBuffers(const T* src, const uint8_t& szSrc, const T* dst, const uint8_t& szDst) {
