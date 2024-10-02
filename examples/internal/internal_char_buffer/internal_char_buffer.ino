@@ -8,7 +8,7 @@ void setup() {
 	Serial.println();
 
   // Default data for read/write test
-  char    newData[] = "Something new Data for write to EEPROM from buffer"; // Default data for read/write test  
+  char    newData[] = "Something new Data for write to EEPROM from buffer"; // New data for read/write test  
 	uint8_t res = 0;                                                          // Variable for Result
 	char    buff[64];                                                         // Buffer for reading default data
   char    buff2[64];                                                        // Buffer for reading data
@@ -16,27 +16,24 @@ void setup() {
   Serial.print("New value for write \t"); eeprom.outBuffer(newData, sizeof(newData));
 
   // Get Default Value from EEPROM
-  res = eeprom.intRead(ADDR, buff, sizeof(buff));                    // Save default value
-  Serial.print("EEPROM data now \t"); eeprom.outBuffer(buff, sizeof(buff));
-  Serial.print("Result of reading data: "); Serial.println(res == 0 ? "success\n" : "error\n");
-
-  // Write default data and return result of operation 
+  res = eeprom.intRead(ADDR, buff, sizeof(buff));                           // Save default value
+  Serial.print("Read data\t"); Serial.print(res == 0 ? "success\t" : "error\t"); eeprom.outBuffer(buff, sizeof(buff));
+  
+  // Write new data and return result of operation 
   res = eeprom.intWrite(ADDR, newData, sizeof(newData));
-  Serial.print("Result of writing data: "); Serial.println(res == 0 ? "success\n" : "error\n");
+  Serial.print("Write data\t"); Serial.println(res == 0 ? "success\n" : "error\n");
 
   // Get value by address
   res = eeprom.intRead(ADDR, buff2, sizeof(buff2));
-  Serial.print("EEPROM data now \t"); eeprom.outBuffer(buff2, sizeof(buff2));
-  Serial.print("Result of reading data: "); Serial.println(res == 0 ? "success\n" : "error\n");
+  Serial.print("Read data\t"); Serial.print(res == 0 ? "success\t" : "error\t"); eeprom.outBuffer(buff2, sizeof(buff2));
   
   // Return value to address
   res = eeprom.intWrite(ADDR, buff, sizeof(buff));
-  Serial.print("Result of writing data: "); Serial.println(res == 0 ? "success\n" : "error\n");
+  Serial.print("Write data\t"); Serial.println(res == 0 ? "success\n" : "error\n");
 
   // Get value by address
   res = eeprom.intRead(ADDR, buff2, sizeof(buff2));
-  Serial.print("EEPROM data now \t"); eeprom.outBuffer(buff2, sizeof(buff2)); 
-  Serial.print("Result of reading data: "); Serial.println(res == 0 ? "success\n" : "error\n");
+  Serial.print("Read data\t"); Serial.print(res == 0 ? "success\t" : "error\t"); eeprom.outBuffer(buff2, sizeof(buff2)); 
 }
 
 void loop() {}

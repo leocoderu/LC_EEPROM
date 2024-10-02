@@ -172,7 +172,7 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, char* dst, const uint8_t& szDst
     for (uint8_t i = 0; i < szDst; i++){
         char v = '\0';
         if (intRead(addr + i, v) != 0) return 2;
-        if (v == 0x00) break;                                   // Read characters up to the zero character like end of the line
+        if (v == '\0') break;                                   // Read characters up to the zero character like end of the line
         dst[i] = v;
     }
     return 0;
@@ -563,9 +563,9 @@ uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const char* src, const uint8_t
     if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
     if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
         if (intFill(addr, szSrc, 0x00) != 0) return 2;                          // Clear value EEPROM by default value
-        for (uint8_t i = 0; i < szSrc; i++) {
-            if (src[i] == 0x00) break;                                          // If write '\0' symbol, it is end of write char array
+        for (uint8_t i = 0; i < szSrc; i++) {            
             if (intWrite(addr + i, (uint8_t)(src[i] + 128)) != 0) return 2;     // if src = -128 then res = 0, if src = +127 then res = 255        
+            if (src[i] == '\0') break;                                          // If write '\0' symbol, it is end of write char array
         }
         buff[szSrc] = {};
         if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
@@ -787,7 +787,10 @@ void LC_EEPROM::outBuffer(uint8_t* src, const uint8_t& sz) {
 
 void LC_EEPROM::outBuffer(char* src, const uint8_t& sz) {
     Serial.print("[");
-    for (uint8_t n = 0; n < sz; n++) Serial.print(src[n]);
+    for (uint8_t n = 0; n < sz; n++) {
+        if (src[n] == '\0') break;
+        Serial.print(src[n]);
+    }
     Serial.println("]");
 }
 

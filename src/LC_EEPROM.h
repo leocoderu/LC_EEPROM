@@ -145,10 +145,10 @@ enum eeprom_model_t {
         //uint32_t _float_to_long(const float& f);
     
         template <typename T>
-        bool     _cmpBuffers(const T* src, const uint8_t& szSrc, const T* dst, const uint8_t& szDst) {
+        bool     _cmpBuffers(const T* src, const uint8_t& szSrc, const T* dst, const uint8_t& szDst) {            
             if (szSrc != szDst) return false;
-            for (uint8_t i = 0; i < szSrc; i++)
-                if (src[i] != dst[i]) return false;
+            for (uint8_t i = 0; i < szSrc; i++) 
+                if (src[i] != dst[i]) return false;            
             return true;
         }
 
