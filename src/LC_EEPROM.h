@@ -134,21 +134,36 @@ enum eeprom_model_t {
         uint8_t  intFill(const uint32_t& addr, const uint32_t& cnt, const uint8_t& src);
 
         void     intShow(const uint32_t& addrFrom = 0x0000, const uint32_t& addrTo = EEPROM.length() - 1, const uint8_t& quan = 32);
+
+        void     outBuffer(char* src, const uint8_t& sz);
         void     outBuffer(int8_t* src, const uint8_t& sz);
         void     outBuffer(uint8_t* src, const uint8_t& sz);
-        void     outBuffer(char* src, const uint8_t& sz);
+        void     outBuffer(uint16_t* src, const uint8_t& sz);
+        void     outBuffer(int16_t* src, const uint8_t& sz);
+        void     outBuffer(uint32_t* src, const uint8_t& sz);
+        void     outBuffer(int32_t* src, const uint8_t& sz);
+        void     outBuffer(uint64_t* src, const uint8_t& sz);
+        void     outBuffer(int64_t* src, const uint8_t& sz);        
+        void     outBuffer(float* src, const uint8_t& sz);        
+        void     outBuffer(double* src, const uint8_t& sz);        
 
         ~LC_EEPROM();
 
     protected:
         String   _preFix(String str, uint8_t quan, char chr);
         //uint32_t _float_to_long(const float& f);
+        void     _printInt64(const int64_t& v);
     
         template <typename T>
-        bool     _cmpBuffers(const T* src, const uint8_t& szSrc, const T* dst, const uint8_t& szDst) {            
+        bool     _cmpBuffers(const T* src, const uint8_t& szSrc, const T* dst, const uint8_t& szDst) {    
+            //Serial.print("szDst: "); Serial.println(szDst);
+            //Serial.print("szSrc: "); Serial.println(szSrc);
+
             if (szSrc != szDst) return false;
-            for (uint8_t i = 0; i < szSrc; i++) 
-                if (src[i] != dst[i]) return false;            
+            for (uint8_t i = 0; i < szSrc; i++) {
+                //Serial.print((uint16_t)src[i]); Serial.print(" == "); Serial.println((uint16_t)dst[i]);
+                if (src[i] != dst[i]) return false;
+            }
             return true;
         }
 

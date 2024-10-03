@@ -255,10 +255,10 @@ uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, char* dst, const uint8_t& s
 
 // Read Buffer - unsigned int 16 bit, [ 0 - 65535 ]
 uint8_t LC_EXT_EEPROM::extRead(const uint32_t& addr, uint16_t* dst, const uint8_t& szDst) {
-    uint8_t sz = sizeof(dst[0]);
+    uint8_t sz = 2; // sizeof(dst[0]);                          // Size of variable in bytes
+    if ((addr + (szDst * sz) - 1) >= _totalCapacity) return 1;  // If we try read block outside, return error
 
-    if ((addr + (szDst * sz) - 1) >= _totalCapacity) return 1;   // If we try read block outside, return error
-    memset(dst, 0xFF, szDst * sz);                               // Set destination array values by default values
+    memset(dst, 0xFF, szDst * sz);                              // Set destination array values by default values
     for (uint8_t i = 0; i < szDst; i++) {
         uint16_t v = 0;
         if (extRead(addr + (i * sz), v) != 0) return 2;
@@ -667,7 +667,7 @@ uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const char* src, const uin
 
 // Write Buffer - unsigned int 16 bit, [ 0 - 65535 ]
 uint8_t LC_EXT_EEPROM::extWrite(const uint32_t& addr, const uint16_t* src, const uint8_t& szSrc) {
-    uint8_t sz = sizeof(src[0]);
+    uint8_t sz = 2; //sizeof(src[0]);
     if ((addr + (szSrc * sz) - 1) >= _totalCapacity) return 1;
 
     uint16_t buff[szSrc] = {};

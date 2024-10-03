@@ -14,10 +14,10 @@ void setup() {
   Serial.println();
 
   // Default data for read/write test
-  char    newData[] = "Something new Data for write to EEPROM from buffer"; // New data for read/write test  
-  uint8_t res = 0;                                                          // Variable for Result
-  char    buff[64];                                                         // Buffer for reading default data
-  char    buff2[64];                                                        // Buffer for reading data
+  uint16_t  newData[] = {12, 4356, 0, 35, 17361, 93, 51388, 12043, 46781, 117}; // New data for read/write test  
+  uint8_t   res = 0;                                                            // Variable for Result
+  uint16_t  buff[16];                                                           // Buffer for reading default data
+  uint16_t  buff2[16];                                                          // Buffer for reading data
  
   Serial.print("New value for write \t"); eeprom.outBuffer(newData, (sizeof(newData) / sizeof(newData[0])));
 

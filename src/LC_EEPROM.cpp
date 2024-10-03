@@ -99,8 +99,8 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, int64_t& dst) {
 // Read - float 32 bit, [ -3.4E+38 - +3.4E+38 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, float& dst) {
     uint8_t sz = sizeof(dst);                                       // Get size of variable
-
     if ((addr + sz - 1) >= EEPROM.length()) return 1;
+
     uint32_t v = 0;
     if (intRead(addr, v) != 0) return 2;
     dst = *(float*)&v;
@@ -180,9 +180,10 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, char* dst, const uint8_t& szDst
 
 // Read Buffer - unsigned int 16 bit, [ 0 - 65535 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint16_t* dst, const uint8_t& szDst) {
-    uint8_t sz = sizeof(dst[0]);                                // Get size element of array
-
+    //Serial.print("LC_EEPROM::intRead\t"); Serial.print("szDst: "); Serial.println(szDst);
+    uint8_t sz = sizeof(uint16_t);                              // Get size element of array
     if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
+
     memset(dst, 0xFF, szDst * sz);                              // Set destination array values by default values
     for (uint8_t i = 0; i < szDst; i++){
         uint16_t v = 0;
@@ -194,7 +195,7 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint16_t* dst, const uint8_t& s
 
 // Read Buffer - signed int 16 bit, [ -32768 - +32767 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, int16_t* dst, const uint8_t& szDst) {
-    uint8_t sz = sizeof(dst[0]);                                // Get size element of array
+    uint8_t sz = sizeof(int16_t);                               // Get size element of array
 
     if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
     memset(dst, 0x00, szDst * sz);
@@ -208,7 +209,7 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, int16_t* dst, const uint8_t& sz
 
 // Read Buffer - unsigned int 32 bit, [ 0 - 4294967295 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint32_t* dst, const uint8_t& szDst) {
-    uint8_t sz = sizeof(dst[0]);                                // Get size element of array
+    uint8_t sz = sizeof(uint32_t);                              // Get size element of array
 
     if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
     memset(dst, 0xFF, szDst * sz);
@@ -222,7 +223,7 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint32_t* dst, const uint8_t& s
 
 // Read Buffer - signed int 32 bit, [ -2147483648 - +2147483647 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, int32_t* dst, const uint8_t& szDst) {
-    uint8_t sz = sizeof(dst[0]);                                // Get size element of array
+    uint8_t sz = sizeof(int32_t);                               // Get size element of array
 
     if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
     memset(dst, 0x00, szDst * sz);
@@ -236,7 +237,7 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, int32_t* dst, const uint8_t& sz
 
 // Read Buffer - unsigned int 64 bit, [ 0 - 0xFFFFFFFFFFFFFFFF ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint64_t* dst, const uint8_t& szDst) {
-    uint8_t sz = sizeof(dst[0]);                                // Get size element of array
+    uint8_t sz = sizeof(uint64_t);                              // Get size element of array
 
     if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
     memset(dst, 0xFF, szDst * sz);
@@ -250,7 +251,7 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint64_t* dst, const uint8_t& s
 
 // Read Buffer - signed int 64 bit, [ -9,223,372,036,854,775,808 - +9,223,372,036,854,775,807 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, int64_t* dst, const uint8_t& szDst) {
-    uint8_t sz = sizeof(dst[0]);                                // Get size element of array
+    uint8_t sz = sizeof(int64_t);                               // Get size element of array
 
     if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
     memset(dst, 0x00, szDst * sz);
@@ -264,9 +265,9 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, int64_t* dst, const uint8_t& sz
 
 // Read Buffer - float 32 bit, [ -3.4E+38 - +3.4E+38 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, float* dst, const uint8_t& szDst) {
-    uint8_t sz = sizeof(dst[0]);                                // Get size element of array
+    uint8_t sz = sizeof(float);                                     // Get size element of array
 
-    if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
+    if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1;     // If we try read block outside, return error
     memset(dst, 0xFF, szDst * sz);
     for (uint8_t i = 0; i < szDst; i++) {
         float v = 0;
@@ -278,7 +279,7 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, float* dst, const uint8_t& szDs
 
 // Read Buffer - double 64 bit, [ -1.7E+308 - +1.7E+308 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, double* dst, const uint8_t& szDst) {
-    uint8_t sz = sizeof(dst[0]);                                    // Get size of double variable, it may be 4 / 8
+    uint8_t sz = sizeof(double);                                    // Get size of double variable, it may be 4 / 8
 
     if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1;     // If we try read block outside, return error
     memset(dst, 0xFF, szDst * sz);
@@ -526,14 +527,14 @@ uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint8_t* src, const uint
     if ((addr + szSrc - 1) >= EEPROM.length()) return 1;
 
     uint8_t buff[szSrc] = {};
-    if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+    if (intRead(addr, buff, szSrc) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
         if (intFill(addr, szSrc, 0xFF) != 0) return 2;
         for (uint8_t i = 0; i < szSrc; i++)
             if (intWrite(addr + i, src[i]) != 0) return 2;
-        buff[szSrc] = {};
-        if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+        //buff[szSrc] = {};
+        if (intRead(addr, buff, szSrc) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
     }
     return 0;
 }
@@ -543,14 +544,14 @@ uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const int8_t* src, const uint8
     if ((addr + szSrc - 1) >= EEPROM.length()) return 1;
 
     int8_t buff[szSrc] = {};
-    if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+    if (intRead(addr, buff, szSrc) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
         if (intFill(addr, szSrc, 0x00) != 0) return 2;
         for (uint8_t i = 0; i < szSrc; i++)
             if (intWrite(addr + i, (uint8_t)(src[i] + 128)) != 0) return 2;
-        buff[szSrc] = {};
-        if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+        //buff[szSrc] = {};
+        if (intRead(addr, buff, szSrc) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
     }
     return 0;
 }
@@ -560,168 +561,153 @@ uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const char* src, const uint8_t
     if ((addr + szSrc - 1) >= EEPROM.length()) return 1;
 
     char buff[szSrc] = {};
-    if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+    if (intRead(addr, buff, szSrc) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
         if (intFill(addr, szSrc, 0x00) != 0) return 2;                          // Clear value EEPROM by default value
         for (uint8_t i = 0; i < szSrc; i++) {            
             if (intWrite(addr + i, (uint8_t)(src[i] + 128)) != 0) return 2;     // if src = -128 then res = 0, if src = +127 then res = 255        
             if (src[i] == '\0') break;                                          // If write '\0' symbol, it is end of write char array
         }
-        buff[szSrc] = {};
-        if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+        //buff[szSrc] = {};
+        if (intRead(addr, buff, szSrc) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
     }
     return 0;
 }
 
 // Write Buffer - unsigned int 16 bit, [ 0 - 65535 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint16_t* src, const uint8_t& szSrc) {
-    uint8_t sz = sizeof(src[0]);
+    uint8_t sz = sizeof(uint16_t);
     if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;
 
     uint16_t buff[szSrc] = {};
-    if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
-        if (intFill(addr, szSrc * sz, 0xFF) != 0) return 2;
+    if (intRead(addr, buff, szSrc) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
+        if (intFill(addr, (szSrc * sz), 0xFF) != 0) return 2;
         for (uint8_t i = 0; i < szSrc; i++)
             if (intWrite(addr + (i * sz), src[i]) != 0) return 2;
-        
-        buff[szSrc] = {};
-        if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+        if (intRead(addr, buff, szSrc) != 0) return 5;
+        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
     }
     return 0;
 }
 
 // Write Buffer - signed int 16 bit, [ -32768 - +32767 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const int16_t* src, const uint8_t& szSrc) {
-    uint8_t sz = sizeof(src[0]);
+    uint8_t sz = sizeof(int16_t);
     if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;
 
     int16_t buff[szSrc] = {};
-    if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+    if (intRead(addr, buff, szSrc) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
         if (intFill(addr, szSrc * sz, 0x00) != 0) return 2;
         for (uint8_t i = 0; i < szSrc; i++)
             if (intWrite(addr + (i * sz), (uint16_t)(src[i] + 32768)) != 0) return 2;
-        
-        buff[szSrc] = {};
-        if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+        //buff[szSrc] = {};
+        if (intRead(addr, buff, szSrc) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
     }
     return 0;
 }
 
 // Write Buffer - unsigned int 32 bit, [ 0 - 4294967295 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint32_t* src, const uint8_t& szSrc) {
-    uint8_t sz = sizeof(src[0]);
+    uint8_t sz = sizeof(uint32_t);
     if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;
 
     uint32_t buff[szSrc] = {};
-    if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+    if (intRead(addr, buff, szSrc) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
         if (intFill(addr, szSrc * sz, 0xFF) != 0) return 2;
         for (uint8_t i = 0; i < szSrc; i++)
             if (intWrite(addr + (i * sz), src[i]) != 0) return 2;
-
-        buff[szSrc] = {};
-        if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+        if (intRead(addr, buff, szSrc) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
     }
     return 0;
 }
 
 // Write Buffer - signed int 32 bit, [ -2147483648 - +2147483647 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const int32_t* src, const uint8_t& szSrc) {
-    uint8_t sz = sizeof(src[0]);
+    uint8_t sz = sizeof(int32_t);
     if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;
 
     int32_t buff[szSrc] = {};
-    if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+    if (intRead(addr, buff, szSrc) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
         if (intFill(addr, szSrc * sz, 0x00) != 0) return 2;
         for (uint8_t i = 0; i < szSrc; i++)
             if (intWrite(addr + (i * sz), (uint32_t)(src[i] + 2147483648)) != 0) return 2;
-
-        buff[szSrc] = {};
-        if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+        if (intRead(addr, buff, szSrc) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
     }
     return 0;
 }
 
 // Write Buffer - unsigned int 64 bit, [ 0 - 0xFFFFFFFFFFFFFFFF ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint64_t* src, const uint8_t& szSrc) {
-    uint8_t sz = sizeof(src[0]);
+    uint8_t sz = sizeof(uint64_t);
     if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;
 
     uint64_t buff[szSrc] = {};
-    if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+    if (intRead(addr, buff, szSrc) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
         if (intFill(addr, szSrc * sz, 0xFF) != 0) return 2;
         for (uint8_t i = 0; i < szSrc; i++)
             if (intWrite(addr + (i * sz), src[i]) != 0) return 2;
-
-        buff[szSrc] = {};
-        if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+        if (intRead(addr, buff, szSrc) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
     }
     return 0;
 }
 
 // Write Buffer - signed int 64 bit, [ -9,223,372,036,854,775,808 - +9,223,372,036,854,775,807 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const int64_t* src, const uint8_t& szSrc) {
-    uint8_t sz = sizeof(src[0]);
+    uint8_t sz = sizeof(int64_t);
     if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;
 
     int64_t buff[szSrc] = {};
-    if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+    if (intRead(addr, buff, szSrc) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
         if (intFill(addr, szSrc * sz, 0x00) != 0) return 2;
         for (uint8_t i = 0; i < szSrc; i++) 
             if (intWrite(addr + (i * sz), (uint64_t)(src[i] + 9223372036854775808UL)) != 0) return 2;
-
-        buff[szSrc] = {};
-        if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+        if (intRead(addr, buff, szSrc) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
     }
     return 0;
 }
 
 // Write Buffer - float 32 bit, [ -3.4E+38 - +3.4E+38 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const float* src, const uint8_t& szSrc) {
-    uint8_t sz = sizeof(src[0]);
+    uint8_t sz = sizeof(float);
     if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;
 
     float buff[szSrc] = {};
-    if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
-        if (intFill(addr, szSrc * sz, 0xFF) != 0) return 2;
+    if (intRead(addr, buff, szSrc) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
+        if (intFill(addr, szSrc * sz, 0xFF) != 0) return 3;
         for (uint8_t i = 0; i < szSrc; i++)
-            if (intWrite(addr + (i * sz), src[i]) != 0) return 2;
-
-        buff[szSrc] = {};
-        if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+            if (intWrite(addr + (i * sz), src[i]) != 0) return 4;
+        if (intRead(addr, buff, szSrc) != 0) return 5;
+        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 6;
     }
     return 0;
 }
 
 // Write Buffer - double 64 bit, [ -1.7E+308 - +1.7E+308 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const double* src, const uint8_t& szSrc) {
-    uint8_t sz = sizeof(src);
+    uint8_t sz = sizeof(double);
     if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;
 
     double buff[szSrc] = {};
-    if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) {
+    if (intRead(addr, buff, szSrc) != 0) return 2;
+    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
         if (intFill(addr, szSrc * sz, 0xFF) != 0) return 2;
         for (uint8_t i = 0; i < szSrc; i++)
             if (intWrite(addr + (i * sz), src[i]) != 0) return 2;
-
-        buff[szSrc] = {};
-        if (intRead(addr, buff, sizeof(buff)) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, sizeof(buff))) return 2;
+        if (intRead(addr, buff, szSrc) != 0) return 2;
+        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
     }
     return 0;
 }
@@ -766,8 +752,17 @@ void LC_EEPROM::intShow(const uint32_t& addrFrom, const uint32_t& addrTo, const 
     }
 }
 
+void LC_EEPROM::outBuffer(char* src, const uint8_t& sz) {
+    Serial.print("[ ");
+    for (uint8_t n = 0; n < sz; n++) {
+        if (src[n] == '\0') break;
+        Serial.print(src[n]);
+    }
+    Serial.println("]");
+}
+
 void LC_EEPROM::outBuffer(int8_t* src, const uint8_t& sz) {
-    Serial.print("[");
+    Serial.print("[ ");
     for (uint8_t n = 0; n < sz; n++) {
         Serial.print(src[n], DEC);
         Serial.print(" ");
@@ -776,7 +771,7 @@ void LC_EEPROM::outBuffer(int8_t* src, const uint8_t& sz) {
 }
 
 void LC_EEPROM::outBuffer(uint8_t* src, const uint8_t& sz) {
-    Serial.print("[");
+    Serial.print("[ ");
     for (uint8_t n = 0; n < sz; n++) {
         if (src[n] < 16) Serial.print("0");
         Serial.print(src[n], HEX);
@@ -785,14 +780,104 @@ void LC_EEPROM::outBuffer(uint8_t* src, const uint8_t& sz) {
     Serial.println("]");
 }
 
-void LC_EEPROM::outBuffer(char* src, const uint8_t& sz) {
-    Serial.print("[");
+void LC_EEPROM::outBuffer(int16_t* src, const uint8_t& sz) {
+    Serial.print("[ ");
     for (uint8_t n = 0; n < sz; n++) {
-        if (src[n] == '\0') break;
-        Serial.print(src[n]);
+        Serial.print(src[n], DEC);
+        Serial.print(" ");
     }
     Serial.println("]");
 }
+
+void LC_EEPROM::outBuffer(uint16_t* src, const uint8_t& sz) {
+    Serial.print("[ ");
+    for (uint8_t n = 0; n < sz; n++) {
+        if (src[n] < 4096) Serial.print("0");
+        if (src[n] < 256) Serial.print("0");
+        if (src[n] < 16) Serial.print("0");
+        Serial.print(src[n], HEX);
+        Serial.print(" ");
+    }
+    Serial.println("]");
+}
+
+void LC_EEPROM::outBuffer(int32_t* src, const uint8_t& sz) {
+    Serial.print("[ ");
+    for (uint8_t n = 0; n < sz; n++) {
+        Serial.print(src[n], DEC);
+        Serial.print(" ");
+    }
+    Serial.println("]");
+}
+
+void LC_EEPROM::outBuffer(uint32_t* src, const uint8_t& sz) {
+    Serial.print("[ ");
+    for (uint8_t n = 0; n < sz; n++) {
+        if (src[n] < 268435456) Serial.print("0");
+        if (src[n] < 16777216) Serial.print("0");
+        if (src[n] < 1048576) Serial.print("0");
+        if (src[n] < 65536) Serial.print("0");
+        if (src[n] < 4096) Serial.print("0");
+        if (src[n] < 256) Serial.print("0");
+        if (src[n] < 16) Serial.print("0");
+        Serial.print(src[n], HEX);
+        Serial.print(" ");
+    }
+    Serial.println("]");
+}
+
+void LC_EEPROM::outBuffer(int64_t* src, const uint8_t& sz) {
+    Serial.print("[ ");
+    for (uint8_t n = 0; n < sz; n++) {
+        _printInt64(src[n]);
+        Serial.print(" ");
+    }
+    Serial.println("]");
+}
+
+void LC_EEPROM::outBuffer(uint64_t* src, const uint8_t& sz) {
+    Serial.print("[ ");
+    for (uint8_t n = 0; n < sz; n++) {
+        uint32_t high = (uint32_t)(src[n] >> 32);
+        uint32_t low = (uint32_t)(src[n]);
+
+        if (high < 268435456) Serial.print("0");
+        if (high < 16777216) Serial.print("0");
+        if (high < 1048576) Serial.print("0");
+        if (high < 65536) Serial.print("0");
+        if (high < 4096) Serial.print("0");
+        if (high < 256) Serial.print("0");
+        if (high < 16) Serial.print("0");
+
+        Serial.print(high, HEX);
+
+        if (low < 268435456) Serial.print("0");
+        if (low < 16777216) Serial.print("0");
+        if (low < 1048576) Serial.print("0");
+        if (low < 65536) Serial.print("0");
+        if (low < 4096) Serial.print("0");
+        if (low < 256) Serial.print("0");
+        if (low < 16) Serial.print("0");
+        
+        Serial.print(low, HEX);
+        Serial.print(" ");
+    }
+    Serial.println("]");
+}
+
+void LC_EEPROM::outBuffer(float* src, const uint8_t& sz) {
+    Serial.print("[ ");
+    for (uint8_t n = 0; n < sz; n++) {
+        Serial.print(src[n]);
+        Serial.print(" ");
+    }
+    Serial.println("]");
+}
+
+void LC_EEPROM::outBuffer(double* src, const uint8_t& sz)
+{
+}
+
 
 LC_EEPROM::~LC_EEPROM() {}
 
@@ -803,6 +888,26 @@ String LC_EEPROM::_preFix(String str, uint8_t quan, char chr = '0') {
     return result;
 }
 
+void LC_EEPROM::_printInt64(const int64_t& v) {
+    bool minus = (v / abs(v)) < 0;
+    String res = "";
+
+    int64_t n = minus ? (v * -1) : v;
+    while ((n / 10) > 0) {
+        uint8_t s = n % 10;
+        res = s + res;
+        n -= s;
+        n /= 10;
+    }
+
+    uint8_t s = n % 10;
+    res = s + res;
+
+    if (minus) res = '-' + res;
+    Serial.print(res);
+}
+
 //uint32_t LC_EEPROM::_float_to_long(const float& f) { return *(unsigned long*)&f; }
 
 // ------------------------------------------- PRIVATE FUNCTIONS -------------------------------------------------------
+
