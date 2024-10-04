@@ -7,10 +7,10 @@ void setup(){
   Serial.begin(9600); delay(500);               // Delay for init EEPROM memory
   Serial.println();
 
-  uint8_t newV = 0x0C;                          // Default data for read/write test
-  uint8_t res  = 0;                             // Variable for Result
-  uint8_t getV = 0;                             // Variable for getting Byte
-  uint8_t defV = 0;                             // Save default value
+  uint8_t newV = 0x0C;                         // Default data for read/write test
+  uint8_t res  = 0;                            // Variable for Result
+  uint8_t getV = 0;                            // Variable for getting Byte
+  uint8_t defV = 0;                            // Save default value
 
   Serial.print("New value for write \t0x"); Serial.println(newV, HEX);
 

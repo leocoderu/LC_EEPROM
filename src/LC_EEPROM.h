@@ -152,16 +152,17 @@ enum eeprom_model_t {
     protected:
         String   _preFix(String str, uint8_t quan, char chr);
         //uint32_t _float_to_long(const float& f);
-        void     _printInt64(const int64_t& v);
+        void     _print64(const int64_t& v);
+        void     _print64(const uint64_t& v);
     
         template <typename T>
         bool     _cmpBuffers(const T* src, const uint8_t& szSrc, const T* dst, const uint8_t& szDst) {    
-            //Serial.print("szDst: "); Serial.println(szDst);
-            //Serial.print("szSrc: "); Serial.println(szSrc);
+            //Serial.print("_cmpBuffers\t"); Serial.print("szDst: "); Serial.println(szDst);
+            //Serial.print("_cmpBuffers\t");Serial.print("szSrc: "); Serial.println(szSrc);
 
             if (szSrc != szDst) return false;
             for (uint8_t i = 0; i < szSrc; i++) {
-                //Serial.print((uint16_t)src[i]); Serial.print(" == "); Serial.println((uint16_t)dst[i]);
+                //Serial.print("_cmpBuffers\t");Serial.print((uint32_t)src[i]); Serial.print(" == "); Serial.println((uint32_t)dst[i]);
                 if (src[i] != dst[i]) return false;
             }
             return true;
