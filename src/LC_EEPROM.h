@@ -96,7 +96,7 @@ enum eeprom_model_t {
         uint8_t  intRead(const uint32_t& addr, String& dst, const uint8_t& szDst);
         uint8_t  intRead(const uint32_t& addr, uint8_t* dst, const uint8_t& szDst);
         uint8_t  intRead(const uint32_t& addr, int8_t* dst, const uint8_t& szDst);        
-        uint8_t  intRead(const uint32_t& addr, char* dst, const uint8_t& szDst);
+        uint8_t  intRead(const uint32_t& addr, char* dst, const uint8_t& szDst, const bool endZero = true);
         uint8_t  intRead(const uint32_t& addr, uint16_t* dst, const uint8_t& szDst);
         uint8_t  intRead(const uint32_t& addr, int16_t* dst, const uint8_t& szDst);
         uint8_t  intRead(const uint32_t& addr, uint32_t* dst, const uint8_t& szDst);
@@ -121,7 +121,7 @@ enum eeprom_model_t {
         uint8_t  intWrite(const uint32_t& addr, const String& src);        
         uint8_t  intWrite(const uint32_t& addr, const uint8_t* src, const uint8_t& szSrc);
         uint8_t  intWrite(const uint32_t& addr, const int8_t* src, const uint8_t& szSrc);
-        uint8_t  intWrite(const uint32_t& addr, const char* src, const uint8_t& szSrc);
+        uint8_t  intWrite(const uint32_t& addr, const char* src, const uint8_t& szSrc, const bool endZero = true);
         uint8_t  intWrite(const uint32_t& addr, const uint16_t* src, const uint8_t& szSrc);
         uint8_t  intWrite(const uint32_t& addr, const int16_t* src, const uint8_t& szSrc);
         uint8_t  intWrite(const uint32_t& addr, const uint32_t* src, const uint8_t& szSrc);
@@ -135,7 +135,7 @@ enum eeprom_model_t {
 
         void     intShow(const uint32_t& addrFrom = 0x0000, const uint32_t& addrTo = EEPROM.length() - 1, const uint8_t& quan = 32);
 
-        void     outBuffer(char* src, const uint8_t& sz);
+        void     outBuffer(char* src, const uint8_t& sz, bool endZero);
         void     outBuffer(int8_t* src, const uint8_t& sz);
         void     outBuffer(uint8_t* src, const uint8_t& sz);
         void     outBuffer(uint16_t* src, const uint8_t& sz);
@@ -151,20 +151,13 @@ enum eeprom_model_t {
 
     protected:
         String   _preFix(String str, uint8_t quan, char chr);
-        //uint32_t _float_to_long(const float& f);
         void     _print64(const int64_t& v);
         void     _print64(const uint64_t& v);
     
         template <typename T>
-        bool     _cmpBuffers(const T* src, const uint8_t& szSrc, const T* dst, const uint8_t& szDst) {    
-            //Serial.print("_cmpBuffers\t"); Serial.print("szDst: "); Serial.println(szDst);
-            //Serial.print("_cmpBuffers\t");Serial.print("szSrc: "); Serial.println(szSrc);
-
-            if (szSrc != szDst) return false;
-            for (uint8_t i = 0; i < szSrc; i++) {
-                //Serial.print("_cmpBuffers\t");Serial.print((uint32_t)src[i]); Serial.print(" == "); Serial.println((uint32_t)dst[i]);
-                if (src[i] != dst[i]) return false;
-            }
+        bool     _cmpBuffers(const T* src, const uint8_t& szSrc, const T* dst) { 
+            for (uint8_t i = 0; i < szSrc; i++) 
+                if (src[i] != dst[i]) return false;            
             return true;
         }
 
@@ -177,7 +170,7 @@ enum eeprom_model_t {
         uint32_t _totalCapacity;    // capacity of all EEPROM devices on the bus, in bytes
         uint16_t _devCapacity;      // capacity of one EEPROM device, in kbits
         uint8_t  _qDevice;          // number of devices on the bus
-        uint8_t  _pSize;            // page size in bytes, because buffer Wire is 32 bytes!!!, 2-bytes address & 30-Data //TODO: Test with 64 and 128
+        uint8_t  _pSize;            // page size in bytes, because buffer Wire is 32 bytes!!!, 2-bytes address & 30-Data
         uint8_t  _twiFreq;          // Frequency in 10th kHz like (1, 4, 10)
 
     public:
@@ -215,7 +208,7 @@ enum eeprom_model_t {
         uint8_t  extRead(const uint32_t& addr, String& dst, const uint8_t& szDst);
         uint8_t  extRead(const uint32_t& addr, uint8_t* dst, const uint8_t& szDst);
         uint8_t  extRead(const uint32_t& addr, int8_t* dst, const uint8_t& szDst);
-        uint8_t  extRead(const uint32_t& addr, char* dst, const uint8_t& szDst);
+        uint8_t  extRead(const uint32_t& addr, char* dst, const uint8_t& szDst, const bool endZero = true);
         uint8_t  extRead(const uint32_t& addr, uint16_t* dst, const uint8_t& szDst);
         uint8_t  extRead(const uint32_t& addr, int16_t* dst, const uint8_t& szDst);
         uint8_t  extRead(const uint32_t& addr, uint32_t* dst, const uint8_t& szDst);
@@ -240,7 +233,7 @@ enum eeprom_model_t {
         uint8_t  extWrite(const uint32_t& addr, const String& src);        
         uint8_t  extWrite(const uint32_t& addr, const uint8_t* src, const uint8_t& szSrc);
         uint8_t  extWrite(const uint32_t& addr, const int8_t* src, const uint8_t& szSrc);
-        uint8_t  extWrite(const uint32_t& addr, const char* src, const uint8_t& szSrc);
+        uint8_t  extWrite(const uint32_t& addr, const char* src, const uint8_t& szSrc, const bool endZero = true);
         uint8_t  extWrite(const uint32_t& addr, const uint16_t* src, const uint8_t& szSrc);
         uint8_t  extWrite(const uint32_t& addr, const int16_t* src, const uint8_t& szSrc);
         uint8_t  extWrite(const uint32_t& addr, const uint32_t* src, const uint8_t& szSrc);

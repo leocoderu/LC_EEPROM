@@ -9,8 +9,6 @@ void setup(){
 
   eeprom.begin();                               // Start working with eeprom
 
-  // eeprom.extFill(ADDR, 0x1FF, 0xFF);         // Filling memory with a certain value
-  
   // Default data for read/write test
   String  newV = "Testing long long long string, its the biggest testing string #1 Testing long long long string, its the biggest testing string #2 Testing long long long string, its the biggest testing string #3";
   uint8_t res  = 0;                             // Variable for Result
@@ -43,8 +41,7 @@ void setup(){
   Serial.print("EEPROM value now \t"); Serial.println(getV);
   Serial.println(res == 0 ? "Result: success\n" : "Result: error\n");
 
-  eeprom.extShow(ADDR, ADDR + 0x1FF, 32);     // Show memory values
-
+  //eeprom.intShow(ADDR, ADDR + 0xFF, 32);
 }
 
 void loop(){}

@@ -74,7 +74,7 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, int32_t& dst) {
     return 0;
 }
 
-// Read - unsigned int 64 bit, [ 0 - 0xFFFFFFFFFFFFFFFF ]  [0 - 18 446 744 073 709 551 615]
+// Read - unsigned int 64 bit, [ 0 - 18 446 744 073 709 551 615 ]  
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint64_t& dst) {
     uint8_t sz = sizeof(dst);                                       // Get size of variable
 
@@ -85,7 +85,7 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint64_t& dst) {
     return 0;
 }
 
-// Read - signed int 64 bit, [ -9,223,372,036,854,775,808 - +9,223,372,036,854,775,807 ]
+// Read - signed int 64 bit, [ -9 223 372 036 854 775 808 - +9 223 372 036 854 775 807 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, int64_t& dst) {
     uint8_t sz = sizeof(dst);                                       // Get size of variable
 
@@ -109,7 +109,7 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, float& dst) {
 
 // Read - double 64 bit, [ -1.7E+308 - +1.7E+308 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, double& dst) {
-    uint8_t sz = sizeof(dst);                                       // Get size of variable
+    uint8_t sz = sizeof(dst);                         // Get size of variable
     if ((addr + sz - 1) >= EEPROM.length()) return 1;
 
     if (sz == 4) {                                    // For AVR
@@ -127,8 +127,8 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, double& dst) {
 
 // Read - Bit 1 bit, [ 0 / 1 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, const uint8_t& nBit, bool& state) {
-    if ((nBit > 7) || (addr >= EEPROM.length())) return 1;  // If Address, out if memory, return error code 1
-    state = bitRead(EEPROM.read(addr), nBit);               // Get Bit in Byte by address
+    if ((nBit > 7) || (addr >= EEPROM.length())) return 1;      // If Address, out if memory, return error code 1
+    state = bitRead(EEPROM.read(addr), nBit);                   // Get Bit in Byte by address
     return 0;
 }
 
@@ -143,8 +143,8 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, String& dst, const uint8_t& szD
 
 // Read Buffer - unsigned int 8 bit, [ 0 - 255 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint8_t* dst, const uint8_t& szDst) {
-    if ((addr + szDst - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
-    memset(dst, 0xFF, szDst);                     
+    if ((addr + szDst - 1) >= EEPROM.length()) return 1;        // If we try read block outside, return error
+    memset(dst, 0xFF, szDst);                                   // Set destination array values by default values
     for (uint8_t i = 0; i < szDst; i++) {
         uint8_t v = 0;
         if (intRead(addr + i, v) != 0) return 2;
@@ -166,13 +166,13 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, int8_t* dst, const uint8_t& szD
 }
 
 // Read Buffer - char, [ -128 - +127 ]
-uint8_t LC_EEPROM::intRead(const uint32_t& addr, char* dst, const uint8_t& szDst) {
+uint8_t LC_EEPROM::intRead(const uint32_t& addr, char* dst, const uint8_t& szDst, const bool endZero) {
     if ((addr + szDst - 1) >= EEPROM.length()) return 1;        // If we try read block outside, return error
     memset(dst, 0x00, szDst);                                   // Set destination array values by default values
     for (uint8_t i = 0; i < szDst; i++){
         char v = '\0';
         if (intRead(addr + i, v) != 0) return 2;
-        if (v == '\0') break;                                   // Read characters up to the zero character like end of the line
+        if (endZero && (v == '\0')) break;                      // Read characters up to the zero character like end of the line
         dst[i] = v;
     }
     return 0;
@@ -180,7 +180,6 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, char* dst, const uint8_t& szDst
 
 // Read Buffer - unsigned int 16 bit, [ 0 - 65535 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint16_t* dst, const uint8_t& szDst) {
-    //Serial.print("LC_EEPROM::intRead\t"); Serial.print("szDst: "); Serial.println(szDst);
     uint8_t sz = sizeof(uint16_t);                              // Get size element of array
     if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
 
@@ -196,9 +195,9 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint16_t* dst, const uint8_t& s
 // Read Buffer - signed int 16 bit, [ -32768 - +32767 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, int16_t* dst, const uint8_t& szDst) {
     uint8_t sz = sizeof(int16_t);                               // Get size element of array
-
     if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
-    memset(dst, 0x00, szDst * sz);
+
+    memset(dst, 0x00, szDst * sz);                              // Set destination array values by default values
     for (uint8_t i = 0; i < szDst; i++){
         int16_t v = 0;
         if (intRead(addr + (i * sz), v) != 0) return 2;
@@ -210,9 +209,9 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, int16_t* dst, const uint8_t& sz
 // Read Buffer - unsigned int 32 bit, [ 0 - 4294967295 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint32_t* dst, const uint8_t& szDst) {
     uint8_t sz = sizeof(uint32_t);                              // Get size element of array
-
     if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
-    memset(dst, 0xFF, szDst * sz);
+
+    memset(dst, 0xFF, szDst * sz);                              // Set destination array values by default values
     for (uint8_t i = 0; i < szDst; i++){
         uint32_t v = 0;
         if (intRead(addr + (i * sz), v) != 0) return 2;
@@ -224,9 +223,9 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint32_t* dst, const uint8_t& s
 // Read Buffer - signed int 32 bit, [ -2147483648 - +2147483647 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, int32_t* dst, const uint8_t& szDst) {
     uint8_t sz = sizeof(int32_t);                               // Get size element of array
-
     if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
-    memset(dst, 0x00, szDst * sz);
+
+    memset(dst, 0x00, szDst * sz);                              // Set destination array values by default values
     for (uint8_t i = 0; i < szDst; i++){
         int32_t v = 0;
         if (intRead(addr + (i * sz), v) != 0) return 2;
@@ -235,12 +234,12 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, int32_t* dst, const uint8_t& sz
     return 0;
 }
 
-// Read Buffer - unsigned int 64 bit, [ 0 - 0xFFFFFFFFFFFFFFFF ]
+// Read Buffer - unsigned int 64 bit, [ 0 - 18 446 744 073 709 551 615 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint64_t* dst, const uint8_t& szDst) {
     uint8_t sz = sizeof(uint64_t);                              // Get size element of array
-
     if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
-    memset(dst, 0xFF, szDst * sz);
+
+    memset(dst, 0xFF, szDst * sz);                              // Set destination array values by default values
     for (uint8_t i = 0; i < szDst; i++){
         uint64_t v = 0;
         if (intRead(addr + (i * sz), v) != 0) return 2;
@@ -249,12 +248,12 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, uint64_t* dst, const uint8_t& s
     return 0;
 }
 
-// Read Buffer - signed int 64 bit, [ -9,223,372,036,854,775,808 - +9,223,372,036,854,775,807 ]
+// Read Buffer - signed int 64 bit, [ -9 223 372 036 854 775 808 - +9 223 372 036 854 775 807 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, int64_t* dst, const uint8_t& szDst) {
     uint8_t sz = sizeof(int64_t);                               // Get size element of array
-
     if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
-    memset(dst, 0x00, szDst * sz);
+
+    memset(dst, 0x00, szDst * sz);                              // Set destination array values by default values
     for (uint8_t i = 0; i < szDst; i++){
         int64_t v = 0;
         if (intRead(addr + (i * sz), v) != 0) return 2;
@@ -265,10 +264,10 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, int64_t* dst, const uint8_t& sz
 
 // Read Buffer - float 32 bit, [ -3.4E+38 - +3.4E+38 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, float* dst, const uint8_t& szDst) {
-    uint8_t sz = sizeof(float);                                     // Get size element of array
+    uint8_t sz = sizeof(float);                                 // Get size element of array
+    if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
 
-    if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1;     // If we try read block outside, return error
-    memset(dst, 0xFF, szDst * sz);
+    memset(dst, 0xFF, szDst * sz);                              // Set destination array values by default values
     for (uint8_t i = 0; i < szDst; i++) {
         float v = 0;
         if (intRead(addr + (i * sz), v) != 0) return 2;
@@ -279,10 +278,10 @@ uint8_t LC_EEPROM::intRead(const uint32_t& addr, float* dst, const uint8_t& szDs
 
 // Read Buffer - double 64 bit, [ -1.7E+308 - +1.7E+308 ]
 uint8_t LC_EEPROM::intRead(const uint32_t& addr, double* dst, const uint8_t& szDst) {
-    uint8_t sz = sizeof(double);                                    // Get size of double variable, it may be 4 / 8
+    uint8_t sz = sizeof(double);                                // Get size of double variable, it may be 4 / 8
+    if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1; // If we try read block outside, return error
 
-    if ((addr + (szDst * sz) - 1) >= EEPROM.length()) return 1;     // If we try read block outside, return error
-    memset(dst, 0xFF, szDst * sz);
+    memset(dst, 0xFF, szDst * sz);                              // Set destination array values by default values
     for (uint8_t i = 0; i < szDst; i++) {
         double v = 0;
         if (intRead(addr + (i * sz), v) != 0) return 2;
@@ -299,8 +298,6 @@ uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint8_t& src) {
     if (intRead(addr, z) != 0) return 2;
     if (z != src) {
         EEPROM.update(addr, src);
-       
-        z = 0;
         if (intRead(addr, z) != 0) return 2;
         if (z != src) return 2;
     }
@@ -309,32 +306,28 @@ uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint8_t& src) {
 
 // Write - signed int 8bit, [ -128 - +127 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const int8_t& src) {
-    if (addr >= EEPROM.length()) return 1;
-    
+    if (addr >= EEPROM.length()) return 1;          // Check outmemory
+
     int8_t z = 0;
-    if (intRead(addr, z) != 0) return 2;
-    if (z != src) {
-        EEPROM.update(addr, (uint8_t)(src + 128));
-        
-        z = 0;
-        if (intRead(addr, z) != 0) return 2;
-        if (z != src) return 2;
+    if (intRead(addr, z) != 0) return 2;            // Get data from memory
+    if (z != src) {                                 // Check data in memory and src 
+        EEPROM.update(addr, (uint8_t)(src + 128));  // Write unsigned data to memory
+        if (intRead(addr, z) != 0) return 2;        // Get wrote data
+        if (z != src) return 2;                     // Check wrote data and src
     }
     return 0;
 }
 
 // Write - char 8bit, [ 'A' / 'B' / another symbol ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const char& src) {
-    if (addr >= EEPROM.length()) return 1;
+    if (addr >= EEPROM.length()) return 1;          // Check outmemory
 
     char z = '\0';
-    if (intRead(addr, z) != 0) return 2;
-    if (z != src) {
-        EEPROM.update(addr, (uint8_t)(src + 128));
-
-        z = '\0';
-        if (intRead(addr, z) != 0) return 2;
-        if (z != src) return 2;
+    if (intRead(addr, z) != 0) return 2;            // Get data from memory
+    if (z != src) {                                 // Check data in memory and src 
+        EEPROM.update(addr, (uint8_t)(src + 128));  // Write unsigned data to memory
+        if (intRead(addr, z) != 0) return 2;        // Get wrote data
+        if (z != src) return 2;                     // Check wrote data and src
     }
     return 0;
 }
@@ -342,407 +335,383 @@ uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const char& src) {
 // Write - unsigned int 16bit, [ 0 - 65535 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint16_t& src) {
     uint8_t sz = sizeof(src);
-    if ((addr + sz - 1) >= EEPROM.length()) return 1;
+    if ((addr + sz - 1) >= EEPROM.length()) return 1;                       // Check outmemory
 
     uint16_t z = 0x0000;
-    if (intRead(addr, z) != 0) return 2;
-    if (z != src) {
+    if (intRead(addr, z) != 0) return 2;                                    // Get data from memory
+    if (z != src) {                                                         // Check data in memory and src 
         for (uint8_t n = 0; n < sz; n++)
-            EEPROM.update(addr + n, (uint8_t)(src >> (8 * (sz - 1 - n))));
-        
-        z = 0x0000;
-        if (intRead(addr, z) != 0) return 2;
-        if (z != src) return 2;
+            EEPROM.update(addr + n, (uint8_t)(src >> (8 * (sz - 1 - n))));  // Write data to memory
+        if (intRead(addr, z) != 0) return 2;                                // Get wrote data
+        if (z != src) return 2;                                             // Check wrote data and src
     }
     return 0;
 }
 
 // Write - signed int 16bit, [ -32768 - +32767 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const int16_t& src) {
-    uint8_t sz = sizeof(src);
-    if ((addr + sz - 1) >= EEPROM.length()) return 1;
+    uint8_t sz = sizeof(src);                           // Get size element of array                    
+    if ((addr + sz - 1) >= EEPROM.length()) return 1;   // Check outmemory
     
     int16_t z = 0x0000;
-    if (intRead(addr, z) != 0) return 2;
-    if (z != src) {
-        uint16_t v = (uint16_t)(src + 32768);
-        if (intWrite(addr, v) != 0) return 2;
-
-        z = 0x0000;
-        if (intRead(addr, z) != 0) return 2;
-        if (z != src) return 2;
+    if (intRead(addr, z) != 0) return 2;                // Get data from memory
+    if (z != src) {                                     // Check data in memory and src 
+        uint16_t v = (uint16_t)(src + 32768);           // Transfer signed to unsigned data
+        if (intWrite(addr, v) != 0) return 2;           // Write unsigned data to memory
+        if (intRead(addr, z) != 0) return 2;            // Get wrote data
+        if (z != src) return 2;                         // Check wrote data and src
     }
     return 0;
 }
 
 // Write - unsigned int 32bit, [ 0 - 4294967295 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint32_t& src) {
-    uint8_t sz = sizeof(src);
-    if ((addr + sz - 1) >= EEPROM.length()) return 1;
+    uint8_t sz = sizeof(src);                                               // Get size element of array
+    if ((addr + sz - 1) >= EEPROM.length()) return 1;                       // Check outmemory
 
     uint32_t z = 0x00000000;
-    if (intRead(addr, z) != 0) return 2;
-    if (z != src) {
+    if (intRead(addr, z) != 0) return 2;                                    // Get data from memory 
+    if (z != src) {                                                         // Check data in memory and src
         for (uint8_t n = 0; n < sz; n++)
-            EEPROM.update(addr + n, (uint8_t)(src >> (8 * (sz - 1 - n))));
-
-        z = 0x00000000;
-        if (intRead(addr, z) != 0) return 2;
-        if (z != src) return 2;
+            EEPROM.update(addr + n, (uint8_t)(src >> (8 * (sz - 1 - n))));  // Write data to memory
+        if (intRead(addr, z) != 0) return 2;                                // Get wrote data
+        if (z != src) return 2;                                             // Check wrote data and src
     }
     return 0;
 }
 
 // Write - signed int 32bit, [ -2147483648 - +2147483647 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const int32_t& src) {
-    uint8_t sz = sizeof(src);
-    if ((addr + sz - 1) >= EEPROM.length()) return 1;
+    uint8_t sz = sizeof(src);                           // Get size element of array
+    if ((addr + sz - 1) >= EEPROM.length()) return 1;   // Check outmemory
 
     int32_t z = 0x00000000;
-    if (intRead(addr, z) != 0) return 2;
-    if (z != src) {
-        uint32_t v = (uint32_t)(src + 2147483648);
-        if (intWrite(addr, v) != 0) return 2;
-
-        z = 0x00000000;
-        if (intRead(addr, z) != 0) return 2;
-        if (z != src) return 2;
+    if (intRead(addr, z) != 0) return 2;                // Get data from memory
+    if (z != src) {                                     // Check data in memory and src 
+        uint32_t v = (uint32_t)(src + 2147483648);      // Transfer signed to unsigned data
+        if (intWrite(addr, v) != 0) return 2;           // Write unsigned data to memory
+        if (intRead(addr, z) != 0) return 2;            // Get wrote data
+        if (z != src) return 2;                         // Check wrote data and src
     }
     return 0;
 }
 
-// Write - unsigned int 64bit, [ 0 - 0xFFFFFFFFFFFFFFFF ]
+// Write - unsigned int 64bit, [ 0 - 18 446 744 073 709 551 615 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint64_t& src) {
-    uint8_t sz = sizeof(src);
-    if ((addr + sz - 1) >= EEPROM.length()) return 1;
+    uint8_t sz = sizeof(src);                                               // Get size element of array
+    if ((addr + sz - 1) >= EEPROM.length()) return 1;                       // Check outmemory
 
     uint64_t z = 0x0000000000000000;
-    if (intRead(addr, z) != 0) return 2;
-    if (z != src) {
+    if (intRead(addr, z) != 0) return 2;                                    // Get data from memory
+    if (z != src) {                                                         // Check data in memory and src 
         for (uint8_t n = 0; n < sz; n++)
-            EEPROM.update(addr + n, (uint8_t)(src >> (8 * (sz - 1 - n))));
-        
-        z = 0x0000000000000000;
-        if (intRead(addr, z) != 0) return 2;
-        if (z != src) return 2;
-    }
+            EEPROM.update(addr + n, (uint8_t)(src >> (8 * (sz - 1 - n))));  // Write data to memory
+        if (intRead(addr, z) != 0) return 2;                                // Get wrote data
+        if (z != src) return 2;                                             // Check wrote data and src
+    }       
     return 0;
 }
 
-// Write - signed int 64bit, [ -9,223,372,036,854,775,808 - +9,223,372,036,854,775,807 ]
+// Write - signed int 64bit, [ -9 223 372 036 854 775 808 - +9 223 372 036 854 775 807 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const int64_t& src) {
-    uint8_t sz = sizeof(src);
-    if ((addr + sz - 1) >= EEPROM.length()) return 1;
+    uint8_t sz = sizeof(src);                                   // Get size element of array
+    if ((addr + sz - 1) >= EEPROM.length()) return 1;           // Check outmemory
 
     int64_t z = 0x0000000000000000;
-    if (intRead(addr, z) != 0) return 2;
-    if (z != src) {
-        uint64_t v = (uint64_t)(src + 9223372036854775808UL);
-        if (intWrite(addr, v) != 0) return 2;
-
-        z = 0x0000000000000000;
-        if (intRead(addr, z) != 0) return 2;
-        if (z != src) return 2;
+    if (intRead(addr, z) != 0) return 2;                        // Get data from memory
+    if (z != src) {                                             // Check data in memory and src 
+        uint64_t v = (uint64_t)(src + 9223372036854775808UL);   // Transfer signed to unsigned data
+        if (intWrite(addr, v) != 0) return 2;                   // Write unsigned data to memory
+        if (intRead(addr, z) != 0) return 2;                    // Get wrote data
+        if (z != src) return 2;                                 // Check wrote data and src
     }
     return 0;
 }
 
 // Write - float 32bit, [ -3.4E+38 - +3.4E+38 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const float& src) {
-    uint8_t sz = sizeof(src);
-    if ((addr + sz - 1) >= EEPROM.length()) return 1;
+    uint8_t sz = sizeof(src);                           // Get size element of array                  
+    if ((addr + sz - 1) >= EEPROM.length()) return 1;   // Check outmemory
 
     uint32_t z = 0;
-    uint32_t v = *(unsigned long*)&src;
-    if (intRead(addr, z) != 0) return 2;
-    if (z != v) {
-        if (intWrite(addr, v) != 0) return 2;
-        if (intRead(addr, z) != 0) return 2;
-        if (z != v) return 2;
+    uint32_t v = *(unsigned long*)&src;                 // Transfer float to unsigned data 
+    if (intRead(addr, z) != 0) return 2;                // Get unsigned data
+    if (z != v) {                                       // Check data in memory and unsigned src data
+        if (intWrite(addr, v) != 0) return 2;           // Write unsigned data
+        if (intRead(addr, z) != 0) return 2;            // Get wrote data
+        if (z != v) return 2;                           // Check wrote data and src
     }
     return 0;
 }
 
 // Write - double 64bit, [ -1.7E+308 - +1.7E+308 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const double& src) {
-    uint8_t sz = sizeof(src);
-    if ((addr + sz - 1) >= EEPROM.length()) return 1;
+    uint8_t sz = sizeof(src);                           // Get size element of array, it may be 4 / 8
+    if ((addr + sz - 1) >= EEPROM.length()) return 1;   // Check outmemory
 
-    if (sz == 4) {
+    if (sz == 4) {                                      // For AVR
         uint32_t z = 0;
         uint32_t v = *(unsigned long*)&src;
-        if (intRead(addr, z) != 0) return 2;
-        if (z != v) {
-            if (intWrite(addr, v) != 0) return 2;
-            if (intRead(addr, z) != 0) return 2;
-            if (z != v) return 2;
+        if (intRead(addr, z) != 0) return 2;            // Get data from memory
+        if (z != v) {                                   // Check data in memory and src 
+            if (intWrite(addr, v) != 0) return 2;       
+            if (intRead(addr, z) != 0) return 2;        // Get wrote data
+            if (z != v) return 2;                       // Check wrote data and src
         }
     };
-    if (sz == 8) {
+    if (sz == 8) {                                      // For ESP and another 32bit controllers
         uint64_t z = 0;
         uint64_t v = *(uint64_t*)&src;
-        if (intRead(addr, z) != 0) return 2;
-        if (z != v) {
+        if (intRead(addr, z) != 0) return 2;            // Get data from memory
+        if (z != v) {                                   // Check data in memory and src 
             if (intWrite(addr, v) != 0) return 2;
-            if (intRead(addr, z) != 0) return 2;
-            if (z != v) return 2;
+            if (intRead(addr, z) != 0) return 2;        // Get wrote data
+            if (z != v) return 2;                       // Check wrote data and src
         }
-    };
-    
+    };  
     return 0;
 }
 
 // Write - Bit 1 bit, [ 0 / 1 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint8_t& nBit, const bool& state) {
-    if ((nBit > 7) || (addr >= EEPROM.length())) return 1;  // If Address, out if memory, return error code 1
+    if ((nBit > 7) || (addr >= EEPROM.length())) return 1;  // Check outmemory
 
     bool z = false;
     if (intRead(addr, nBit, z) != 0) return 2;              // Get Info of Bit by address
     if (z != state) {
-        uint8_t src = EEPROM.read(addr);                        // Read The byte by address
-        bitWrite(src, nBit, state);                             // Set Bit in Byte
-        EEPROM.update(addr, src);                               // Update The byte
-
-        z = false;
-        if (intRead(addr, nBit, z) != 0) return 2;              // Get Info of Bit by address
-        if (z != state) return 2;                               // Compare info
+        uint8_t src = EEPROM.read(addr);                    // Read The byte by address
+        bitWrite(src, nBit, state);                         // Set Bit in Byte
+        EEPROM.update(addr, src);                           // Update The byte
+        if (intRead(addr, nBit, z) != 0) return 2;          // Get Info of Bit by address
+        if (z != state) return 2;                           // Compare info
     }
     return 0;
 }
 
 // Write - String
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const String& src) {
-    if ((addr + src.length() - 1) >= EEPROM.length()) return 1;
+    if ((addr + src.length() - 1) >= EEPROM.length()) return 1;     // Check outmemory
 
     String z = "";
-    if (intRead(addr, z, src.length()) != 0) return 2;
-    if (z != src) {
-        for (uint8_t i = 0; i < src.length(); i++) EEPROM.update(addr + i, (uint8_t)src[i]);
-
-        z = "";
-        if (intRead(addr, z, src.length()) != 0) return 2;
-        if (z != src) return 2;
+    if (intRead(addr, z, src.length()) != 0) return 2;              // Get data from memory
+    if (z != src) {                                                 // Check data in memory and src 
+        for (uint8_t i = 0; i < src.length(); i++) 
+            EEPROM.update(addr + i, (uint8_t)src[i]);               // Write data to memory
+        if (intRead(addr, z, src.length()) != 0) return 2;          // Get data from memory
+        if (z != src) return 2;                                     // Check wrote data with src 
     }
     return 0;
 }
 
 // Write Buffer - unsigned int 8 bit, [ 0 - 255 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint8_t* src, const uint8_t& szSrc) {
-    if ((addr + szSrc - 1) >= EEPROM.length()) return 1;
+    if ((addr + szSrc - 1) >= EEPROM.length()) return 1;            // Check outmemory
 
     uint8_t buff[szSrc] = {};
-    if (intRead(addr, buff, szSrc) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
-        if (intFill(addr, szSrc, 0xFF) != 0) return 2;
+    if (intRead(addr, buff, szSrc) != 0) return 2;                  // Get data from memory
+    if (!_cmpBuffers(src, szSrc, buff)) {                           // Check data in memory and src 
+        if (intFill(addr, szSrc, 0xFF) != 0) return 2;              // Clear value EEPROM by default value
         for (uint8_t i = 0; i < szSrc; i++)
-            if (intWrite(addr + i, src[i]) != 0) return 2;
-        //buff[szSrc] = {};
-        if (intRead(addr, buff, szSrc) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
+            if (intWrite(addr + i, src[i]) != 0) return 2;          // Write data to memory
+        if (intRead(addr, buff, szSrc) != 0) return 2;              // Get data from memory
+        if (!_cmpBuffers(src, szSrc, buff)) return 2;               // Check wrote data with src     
     }
     return 0;
 }
 
 // Write Buffer - signed int 8 bit, [ -128 - +127 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const int8_t* src, const uint8_t& szSrc) {
-    if ((addr + szSrc - 1) >= EEPROM.length()) return 1;
+    if ((addr + szSrc - 1) >= EEPROM.length()) return 1;                    // Check outmemory 
 
     int8_t buff[szSrc] = {};
-    if (intRead(addr, buff, szSrc) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
-        if (intFill(addr, szSrc, 0x00) != 0) return 2;
+    if (intRead(addr, buff, szSrc) != 0) return 2;                          // Get data from memory
+    if (!_cmpBuffers(src, szSrc, buff)) {                                   // Check data in memory and src
+        if (intFill(addr, szSrc, 0x00) != 0) return 2;                      // Clear value EEPROM by default value
         for (uint8_t i = 0; i < szSrc; i++)
-            if (intWrite(addr + i, (uint8_t)(src[i] + 128)) != 0) return 2;
-        //buff[szSrc] = {};
-        if (intRead(addr, buff, szSrc) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
+            if (intWrite(addr + i, (uint8_t)(src[i] + 128)) != 0) return 2; // if src = -128 then res = 0, if src = +127 then res = 255
+        if (intRead(addr, buff, szSrc) != 0) return 2;                      // Get data from memory
+        if (!_cmpBuffers(src, szSrc, buff)) return 2;                       // Check data in memory and src
     }
     return 0;
 }
 
 // Write Buffer - char 8 bit, [ -128 - +127 ]
-uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const char* src, const uint8_t& szSrc) {
-    if ((addr + szSrc - 1) >= EEPROM.length()) return 1;
+uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const char* src, const uint8_t& szSrc, const bool endZero) {
+    if ((addr + szSrc - 1) >= EEPROM.length()) return 1;                        // Check outmemory
 
     char buff[szSrc] = {};
-    if (intRead(addr, buff, szSrc) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
+    if (intRead(addr, buff, szSrc, endZero) != 0) return 2;                     // Get data from memory
+    if (!_cmpBuffers(src, szSrc, buff)) {                                       // Check data in memory and src 
         if (intFill(addr, szSrc, 0x00) != 0) return 2;                          // Clear value EEPROM by default value
         for (uint8_t i = 0; i < szSrc; i++) {            
             if (intWrite(addr + i, (uint8_t)(src[i] + 128)) != 0) return 2;     // if src = -128 then res = 0, if src = +127 then res = 255        
-            if (src[i] == '\0') break;                                          // If write '\0' symbol, it is end of write char array
+            if (endZero && (src[i] == '\0')) break;                             // If write '\0' symbol, it is end of write char array
         }
-        //buff[szSrc] = {};
-        if (intRead(addr, buff, szSrc) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
+        if (intRead(addr, buff, szSrc, endZero) != 0) return 2;                 // Get data from memory
+        if (!_cmpBuffers(src, szSrc, buff)) return 2;                           // Check data in memory and src 
     }
     return 0;
 }
 
 // Write Buffer - unsigned int 16 bit, [ 0 - 65535 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint16_t* src, const uint8_t& szSrc) {
-    uint8_t sz = sizeof(uint16_t);
-    if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;
+    uint8_t sz = sizeof(uint16_t);                                  // Get size element of array 
+    if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;     // Check outmemory 
 
     uint16_t buff[szSrc] = {};
-    if (intRead(addr, buff, szSrc) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
-        if (intFill(addr, (szSrc * sz), 0xFF) != 0) return 2;
+    if (intRead(addr, buff, szSrc) != 0) return 2;                  // Get data from memory
+    if (!_cmpBuffers(src, szSrc, buff)) {                           // Check data in memory and src
+        if (intFill(addr, (szSrc * sz), 0xFF) != 0) return 2;       // Clear value EEPROM by default value
         for (uint8_t i = 0; i < szSrc; i++)
-            if (intWrite(addr + (i * sz), src[i]) != 0) return 2;
-        if (intRead(addr, buff, szSrc) != 0) return 5;
-        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
+            if (intWrite(addr + (i * sz), src[i]) != 0) return 2;   // Write data to memory
+        if (intRead(addr, buff, szSrc) != 0) return 2;              // Get data from memory
+        if (!_cmpBuffers(src, szSrc, buff)) return 2;               // Check data in memory and src
     }
     return 0;
 }
 
 // Write Buffer - signed int 16 bit, [ -32768 - +32767 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const int16_t* src, const uint8_t& szSrc) {
-    uint8_t sz = sizeof(int16_t);
-    if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;
+    uint8_t sz = sizeof(int16_t);                                                       // Get size element of array 
+    if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;                         // Check outmemory 
 
     int16_t buff[szSrc] = {};
-    if (intRead(addr, buff, szSrc) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
-        if (intFill(addr, szSrc * sz, 0x00) != 0) return 2;
+    if (intRead(addr, buff, szSrc) != 0) return 2;                                      // Get data from memory
+    if (!_cmpBuffers(src, szSrc, buff)) {                                               // Check data in memory and src
+        if (intFill(addr, szSrc * sz, 0x00) != 0) return 2;                             // Clear value EEPROM by default value
         for (uint8_t i = 0; i < szSrc; i++)
-            if (intWrite(addr + (i * sz), (uint16_t)(src[i] + 32768)) != 0) return 2;
-        //buff[szSrc] = {};
-        if (intRead(addr, buff, szSrc) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
+            if (intWrite(addr + (i * sz), (uint16_t)(src[i] + 32768)) != 0) return 2;   // Write data to memory
+        if (intRead(addr, buff, szSrc) != 0) return 2;                                  // Get data from memory
+        if (!_cmpBuffers(src, szSrc, buff)) return 2;                                   // Check data in memory and src
     }
     return 0;
 }
 
 // Write Buffer - unsigned int 32 bit, [ 0 - 4294967295 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint32_t* src, const uint8_t& szSrc) {
-    uint8_t sz = sizeof(uint32_t);
-    if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;
+    uint8_t sz = sizeof(uint32_t);                                  // Get size element of array
+    if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;     // Check outmemory
 
     uint32_t buff[szSrc] = {};
-    if (intRead(addr, buff, szSrc) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
-        if (intFill(addr, szSrc * sz, 0xFF) != 0) return 2;
+    if (intRead(addr, buff, szSrc) != 0) return 2;                  // Get data from memory
+    if (!_cmpBuffers(src, szSrc, buff)) {                           // Check data in memory and src
+        if (intFill(addr, szSrc * sz, 0xFF) != 0) return 2;         // Clear value EEPROM by default value
         for (uint8_t i = 0; i < szSrc; i++)
-            if (intWrite(addr + (i * sz), src[i]) != 0) return 2;
-        if (intRead(addr, buff, szSrc) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
+            if (intWrite(addr + (i * sz), src[i]) != 0) return 2;   // Write data to memory
+        if (intRead(addr, buff, szSrc) != 0) return 2;              // Get data from memory
+        if (!_cmpBuffers(src, szSrc, buff)) return 2;               // Check data in memory and src
     }
     return 0;
 }
 
 // Write Buffer - signed int 32 bit, [ -2147483648 - +2147483647 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const int32_t* src, const uint8_t& szSrc) {
-    uint8_t sz = sizeof(int32_t);
-    if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;
+    uint8_t sz = sizeof(int32_t);                                                           // Get size element of array
+    if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;                             // Check outmemory
 
     int32_t buff[szSrc] = {};
-    if (intRead(addr, buff, szSrc) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
-        if (intFill(addr, szSrc * sz, 0x00) != 0) return 2;
+    if (intRead(addr, buff, szSrc) != 0) return 2;                                          // Get data from memory
+    if (!_cmpBuffers(src, szSrc, buff)) {                                                   // Check data in memory and src
+        if (intFill(addr, szSrc * sz, 0x00) != 0) return 2;                                 // Clear value EEPROM by default value
         for (uint8_t i = 0; i < szSrc; i++)
-            if (intWrite(addr + (i * sz), (uint32_t)(src[i] + 2147483648)) != 0) return 2;
-        if (intRead(addr, buff, szSrc) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
+            if (intWrite(addr + (i * sz), (uint32_t)(src[i] + 2147483648)) != 0) return 2;  // Write data to memory
+        if (intRead(addr, buff, szSrc) != 0) return 2;                                      // Get data from memory
+        if (!_cmpBuffers(src, szSrc, buff)) return 2;                                       // Check data in memory and src
     }
     return 0;
 }
 
 // Write Buffer - unsigned int 64 bit, [ 0 - 0xFFFFFFFFFFFFFFFF ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const uint64_t* src, const uint8_t& szSrc) {
-    uint8_t sz = sizeof(uint64_t);
-    if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;
+    uint8_t sz = sizeof(uint64_t);                                  // Get size element of array
+    if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;     // Check outmemory
 
     uint64_t buff[szSrc] = {};
-    if (intRead(addr, buff, szSrc) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
-        if (intFill(addr, szSrc * sz, 0xFF) != 0) return 2;
+    if (intRead(addr, buff, szSrc) != 0) return 2;                  // Get data from memory
+    if (!_cmpBuffers(src, szSrc, buff)) {                           // Check data in memory and src
+        if (intFill(addr, szSrc * sz, 0xFF) != 0) return 2;         // Clear value EEPROM by default value
         for (uint8_t i = 0; i < szSrc; i++)
-            if (intWrite(addr + (i * sz), src[i]) != 0) return 2;
-        if (intRead(addr, buff, szSrc) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
+            if (intWrite(addr + (i * sz), src[i]) != 0) return 2;   // Write data to memory    
+        if (intRead(addr, buff, szSrc) != 0) return 2;              // Get data from memory
+        if (!_cmpBuffers(src, szSrc, buff)) return 2;               // Check data in memory and src
     }
     return 0;
 }
 
 // Write Buffer - signed int 64 bit, [ -9,223,372,036,854,775,808 - +9,223,372,036,854,775,807 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const int64_t* src, const uint8_t& szSrc) {
-    uint8_t sz = sizeof(int64_t);
-    if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;
+    uint8_t sz = sizeof(int64_t);                                   // Get size element of array
+    if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;     // Check outmemory
 
     int64_t buff[szSrc] = {};
-    if (intRead(addr, buff, szSrc) != 0) return 2;
-    if (!_cmpBuffers(src, szSrc, buff, szSrc)) {
-        if (intFill(addr, szSrc * sz, 0x00) != 0) return 2;
+    if (intRead(addr, buff, szSrc) != 0) return 2;                  // Get data from memory
+    if (!_cmpBuffers(src, szSrc, buff)) {                           // Check data in memory and src
+        if (intFill(addr, szSrc * sz, 0x00) != 0) return 2;         // Clear value EEPROM by default value
         for (uint8_t i = 0; i < szSrc; i++) 
-            if (intWrite(addr + (i * sz), (uint64_t)(src[i] + 9223372036854775808UL)) != 0) return 2;
-        if (intRead(addr, buff, szSrc) != 0) return 2;
-        if (!_cmpBuffers(src, szSrc, buff, szSrc)) return 2;
+            if (intWrite(addr + (i * sz), (uint64_t)(src[i] + 9223372036854775808UL)) != 0) return 2;   // Write data to memory
+        if (intRead(addr, buff, szSrc) != 0) return 2;              // Get data from memory
+        if (!_cmpBuffers(src, szSrc, buff)) return 2;               // Check data in memory and src
     }
     return 0;
 }
 
 // Write Buffer - float 32 bit, [ -3.4E+38 - +3.4E+38 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const float* src, const uint8_t& szSrc) {
-    uint8_t sz = sizeof(float);
-    if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;
+    uint8_t sz = sizeof(float);                                     // Get size element of array
+    if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;     // Check outmemory
 
     uint32_t uSrc[szSrc] = {};
-    for (uint8_t i = 0; i < szSrc; i++) {
-        uSrc[i] = *(unsigned long*)&src[i];
-    }
+    for (uint8_t i = 0; i < szSrc; i++) 
+        uSrc[i] = *(unsigned long*)&src[i];                         // Transformation float array to uint32, for compare by elements
 
     uint32_t buff[szSrc] = {};
-    if (intRead(addr, buff, szSrc) != 0) return 2;
-    if (!_cmpBuffers(uSrc, szSrc, buff, szSrc)) {
-        if (intFill(addr, szSrc * sz, 0xFF) != 0) return 3;
+    if (intRead(addr, buff, szSrc) != 0) return 2;                  // Get data from memory
+    if (!_cmpBuffers(uSrc, szSrc, buff)) {                          // Check data in memory and uSrc
+        if (intFill(addr, szSrc * sz, 0xFF) != 0) return 2;         // Clear value EEPROM by default value
         for (uint8_t i = 0; i < szSrc; i++)
-            if (intWrite(addr + (i * sz), src[i]) != 0) return 4;
-
-        if (intRead(addr, buff, szSrc) != 0) return 5;
-        if (!_cmpBuffers(uSrc, szSrc, buff, szSrc)) return 6;
+            if (intWrite(addr + (i * sz), src[i]) != 0) return 2;   // Write data to memory
+        if (intRead(addr, buff, szSrc) != 0) return 2;              // Get data from memory
+        if (!_cmpBuffers(uSrc, szSrc, buff)) return 2;              // Check data in memory and uSrc
     }
     return 0;
 }
 
 // Write Buffer - double 64 bit, [ -1.7E+308 - +1.7E+308 ]
 uint8_t LC_EEPROM::intWrite(const uint32_t& addr, const double* src, const uint8_t& szSrc) {
-    uint8_t sz = sizeof(double);
-    if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;
+    uint8_t sz = sizeof(double);                                        // Get size element of array, it may be 4 / 8
+    if ((addr + (szSrc * sz) - 1) >= EEPROM.length()) return 1;         // Check outmemory
 
-    if (sz == 4) {
+    if (sz == 4) {                                                      // For AVR
         uint32_t uSrc[szSrc] = {};
-        for (uint8_t i = 0; i < szSrc; i++) {
-            uSrc[i] = *(unsigned long*)&src[i];
-        }
-
+        for (uint8_t i = 0; i < szSrc; i++) 
+            uSrc[i] = *(unsigned long*)&src[i];                         // Transformation float array to uint32, for compare by elements
+        
         uint32_t buff[szSrc] = {};
-        if (intRead(addr, buff, szSrc) != 0) return 2;
-        if (!_cmpBuffers(uSrc, szSrc, buff, szSrc)) {
-            if (intFill(addr, szSrc * sz, 0xFF) != 0) return 2;
+        if (intRead(addr, buff, szSrc) != 0) return 2;                  // Get data from memory
+        if (!_cmpBuffers(uSrc, szSrc, buff)) {                          // Check data in memory and uSrc
+            if (intFill(addr, szSrc * sz, 0xFF) != 0) return 2;         // Clear value EEPROM by default value
             for (uint8_t i = 0; i < szSrc; i++)
-                if (intWrite(addr + (i * sz), src[i]) != 0) return 2;
+                if (intWrite(addr + (i * sz), src[i]) != 0) return 2;   // Write data to memory
 
-            if (intRead(addr, buff, szSrc) != 0) return 2;
-            if (!_cmpBuffers(uSrc, szSrc, buff, szSrc)) return 2;
+            if (intRead(addr, buff, szSrc) != 0) return 2;              // Get data from memory
+            if (!_cmpBuffers(uSrc, szSrc, buff)) return 2;              // Check data in memory and uSrc
         }
     }
-
-    if (sz == 8) {
+    if (sz == 8) {                                                      // For ESP and another 32bit controllers
         uint64_t uSrc[szSrc] = {};
         for (uint8_t i = 0; i < szSrc; i++) {
-            uSrc[i] = *(uint64_t*)&src[i];
+            uSrc[i] = *(uint64_t*)&src[i];                              // Transformation float array to uint32, for compare by elements
         }
 
         uint64_t buff[szSrc] = {};
-        if (intRead(addr, buff, szSrc) != 0) return 2;
-        if (!_cmpBuffers(uSrc, szSrc, buff, szSrc)) {
-            if (intFill(addr, szSrc * sz, 0xFF) != 0) return 2;
+        if (intRead(addr, buff, szSrc) != 0) return 2;                  // Get data from memory
+        if (!_cmpBuffers(uSrc, szSrc, buff)) {                          // Check data in memory and uSrc
+            if (intFill(addr, szSrc * sz, 0xFF) != 0) return 2;         // Clear value EEPROM by default value
             for (uint8_t i = 0; i < szSrc; i++)
-                if (intWrite(addr + (i * sz), src[i]) != 0) return 2;
+                if (intWrite(addr + (i * sz), src[i]) != 0) return 2;   // Write data to memory
 
-            if (intRead(addr, buff, szSrc) != 0) return 2;
-            if (!_cmpBuffers(uSrc, szSrc, buff, szSrc)) return 2;
+            if (intRead(addr, buff, szSrc) != 0) return 2;              // Get data from memory
+            if (!_cmpBuffers(uSrc, szSrc, buff)) return 2;              // Check data in memory and uSrc
         }
     }
     return 0;
@@ -787,138 +756,6 @@ void LC_EEPROM::intShow(const uint32_t& addrFrom, const uint32_t& addrTo, const 
         }
     }
 }
-
-void LC_EEPROM::outBuffer(char* src, const uint8_t& sz) {
-    Serial.print("[ ");
-    for (uint8_t n = 0; n < sz; n++) {
-        if (src[n] == '\0') break;
-        Serial.print(src[n]);
-    }
-    Serial.println("]");
-}
-
-void LC_EEPROM::outBuffer(int8_t* src, const uint8_t& sz) {
-    Serial.print("[ ");
-    for (uint8_t n = 0; n < sz; n++) {
-        Serial.print(src[n], DEC);
-        Serial.print(" ");
-    }
-    Serial.println("]");
-}
-
-void LC_EEPROM::outBuffer(uint8_t* src, const uint8_t& sz) {
-    Serial.print("[ ");
-    for (uint8_t n = 0; n < sz; n++) {
-        if (src[n] < 16) Serial.print("0");
-        Serial.print(src[n], HEX);
-        Serial.print(" ");
-    }
-    Serial.println("]");
-}
-
-void LC_EEPROM::outBuffer(int16_t* src, const uint8_t& sz) {
-    Serial.print("[ ");
-    for (uint8_t n = 0; n < sz; n++) {
-        Serial.print(src[n], DEC);
-        Serial.print(" ");
-    }
-    Serial.println("]");
-}
-
-void LC_EEPROM::outBuffer(uint16_t* src, const uint8_t& sz) {
-    Serial.print("[ ");
-    for (uint8_t n = 0; n < sz; n++) {
-        if (src[n] < 4096) Serial.print("0");
-        if (src[n] < 256) Serial.print("0");
-        if (src[n] < 16) Serial.print("0");
-        Serial.print(src[n], HEX);
-        Serial.print(" ");
-    }
-    Serial.println("]");
-}
-
-void LC_EEPROM::outBuffer(int32_t* src, const uint8_t& sz) {
-    Serial.print("[ ");
-    for (uint8_t n = 0; n < sz; n++) {
-        Serial.print(src[n], DEC);
-        Serial.print(" ");
-    }
-    Serial.println("]");
-}
-
-void LC_EEPROM::outBuffer(uint32_t* src, const uint8_t& sz) {
-    Serial.print("[ ");
-    for (uint8_t n = 0; n < sz; n++) {
-        if (src[n] < 268435456) Serial.print("0");
-        if (src[n] < 16777216) Serial.print("0");
-        if (src[n] < 1048576) Serial.print("0");
-        if (src[n] < 65536) Serial.print("0");
-        if (src[n] < 4096) Serial.print("0");
-        if (src[n] < 256) Serial.print("0");
-        if (src[n] < 16) Serial.print("0");
-        Serial.print(src[n], HEX);
-        Serial.print(" ");
-    }
-    Serial.println("]");
-}
-
-void LC_EEPROM::outBuffer(int64_t* src, const uint8_t& sz) {
-    Serial.print("[ ");
-    for (uint8_t n = 0; n < sz; n++) {
-        _print64(src[n]);
-        Serial.print(" ");
-    }
-    Serial.println("]");
-}
-
-void LC_EEPROM::outBuffer(uint64_t* src, const uint8_t& sz) {
-    Serial.print("[ ");
-    for (uint8_t n = 0; n < sz; n++) {
-        uint32_t high = (uint32_t)(src[n] >> 32);
-        uint32_t low = (uint32_t)(src[n]);
-
-        if (high < 268435456) Serial.print("0");
-        if (high < 16777216) Serial.print("0");
-        if (high < 1048576) Serial.print("0");
-        if (high < 65536) Serial.print("0");
-        if (high < 4096) Serial.print("0");
-        if (high < 256) Serial.print("0");
-        if (high < 16) Serial.print("0");
-
-        Serial.print(high, HEX);
-
-        if (low < 268435456) Serial.print("0");
-        if (low < 16777216) Serial.print("0");
-        if (low < 1048576) Serial.print("0");
-        if (low < 65536) Serial.print("0");
-        if (low < 4096) Serial.print("0");
-        if (low < 256) Serial.print("0");
-        if (low < 16) Serial.print("0");
-        
-        Serial.print(low, HEX);
-        Serial.print(" ");
-    }
-    Serial.println("]");
-}
-
-void LC_EEPROM::outBuffer(float* src, const uint8_t& sz) {
-    Serial.print("[ ");
-    for (uint8_t n = 0; n < sz; n++) {
-        Serial.print(src[n]);
-        Serial.print(" ");
-    }
-    Serial.println("]");
-}
-
-void LC_EEPROM::outBuffer(double* src, const uint8_t& sz){
-    Serial.print("[ ");
-    for (uint8_t n = 0; n < sz; n++) {
-        Serial.print(src[n]);
-        Serial.print(" ");
-    }
-    Serial.println("]");
-}
-
 
 LC_EEPROM::~LC_EEPROM() {}
 
